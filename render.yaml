@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: chronicle-rift-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: WEB_ORIGIN
+        sync: false
+
+  - type: web
+    name: chronicle-rift
+    runtime: static
+    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm --filter @chronicle/web build
+    staticPublishPath: ./apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

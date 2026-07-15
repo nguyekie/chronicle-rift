@@ -1,0 +1,2 @@
+param([Parameter(Mandatory=$true)][string]$Backup)
+$ErrorActionPreference='Stop';if(!(Test-Path $Backup)){throw 'Backup not found'};Write-Warning 'This replaces the target Chronicle database.';docker compose cp $Backup postgres:/tmp/chronicle-restore.sql.gz;if($LASTEXITCODE){throw 'Backup upload failed'};docker compose exec -T postgres sh -c 'gzip -dc /tmp/chronicle-restore.sql.gz | psql -v ON_ERROR_STOP=1 -U chronicle -d chronicle';if($LASTEXITCODE){throw 'Restore failed'};docker compose exec -T postgres rm -f /tmp/chronicle-restore.sql.gz|Out-Null

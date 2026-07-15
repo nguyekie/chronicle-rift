@@ -1,0 +1,2 @@
+import 'dotenv/config'; import {z} from 'zod';
+const schema=z.object({NODE_ENV:z.enum(['development','test','production']).default('development'),PORT:z.coerce.number().default(3000),DATABASE_URL:z.string().default('postgresql://chronicle:chronicle@localhost:5432/chronicle?schema=public'),JWT_ACCESS_SECRET:z.string().min(32).default('development-access-secret-32-characters'),JWT_REFRESH_SECRET:z.string().min(32).default('development-refresh-secret-32-chars'),WEB_ORIGIN:z.string().default('http://localhost:5173')}); export const config=schema.parse(process.env);

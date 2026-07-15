@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Faction {
+  IRONVALE
+  ARCANUM
+  NEUTRAL
+}
+
+enum CardType {
+  UNIT
+  SPELL
+  TRAP
+  TERRAIN
+  EQUIPMENT
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  ANCIENT
+  MYTHIC
+  CELESTIAL
+  LIMITED
+}
+
+model User {
+  id            String              @id @default(cuid())
+  email         String              @unique
+  passwordHash  String
+  role          Role                @default(USER)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  profile       UserProfile?
+  refreshTokens RefreshToken[]
+  cards         UserCard[]
+  decks         Deck[]
+  campaign      UserStageProgress[]
+  currencies    UserCurrency[]
+  packHistory   PackOpenHistory[]
+  matchPlayers  MatchPlayer[]
+  matchActions  MatchAction[]
+  ranks         UserRank[]
+  eventWallets  UserEventCurrency[]
+  limitedCards  LimitedCardCopy[]
+}
+
+model UserProfile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  displayName String
+  avatarUrl   String?
+  level       Int     @default(1)
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CardSet {
+  id    String @id @default(cuid())
+  code  String @unique
+  name  String
+  cards Card[]
+}
+
+model Card {
+  id            String            @id @default(cuid())
+  code          String            @unique
+  name          String
+  description   String
+  type          CardType
+  faction       Faction
+  rarity        Rarity
+  cost          Int
+  attack        Int?
+  health        Int?
+  keywords      Json
+  collectible   Boolean           @default(true)
+  printLimit    Int?
+  mintedCount   Int               @default(0)
+  setId         String
+  set           CardSet           @relation(fields: [setId], references: [id])
+  owners        UserCard[]
+  deckCards     DeckCard[]
+  limitedCopies LimitedCardCopy[]
+
+  @@index([faction, type, rarity, cost])
+}
+
+model LimitedCardCopy {
+  id       String   @id @default(cuid())
+  cardId   String
+  userId   String
+  serial   Int
+  mintedAt DateTime @default(now())
+  card     Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, serial])
+  @@index([userId, cardId])
+}
+
+model UserCard {
+  userId   String
+  cardId   String
+  quantity Int    @default(0)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card     Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@id([userId, cardId])
+}
+
+model Deck {
+  id        String     @id @default(cuid())
+  userId    String
+  name      String
+  faction   Faction
+  isDefault Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards     DeckCard[]
+
+  @@index([userId])
+}
+
+model DeckCard {
+  deckId   String
+  cardId   String
+  quantity Int
+  position Int
+  deck     Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  card     Card   @relation(fields: [cardId], references: [id])
+
+  @@id([deckId, cardId])
+  @@unique([deckId, position])
+}
+
+enum StageKind {
+  NORMAL
+  BOSS
+}
+
+enum AiLevel {
+  EASY
+  NORMAL
+  BOSS
+}
+
+model CampaignChapter {
+  id          String          @id @default(cuid())
+  number      Int             @unique
+  name        String
+  description String
+  stages      CampaignStage[]
+}
+
+model CampaignStage {
+  id         String              @id @default(cuid())
+  chapterId  String
+  number     Int
+  name       String
+  kind       StageKind           @default(NORMAL)
+  aiLevel    AiLevel             @default(EASY)
+  enemyDeck  Json
+  rewardGold Int                 @default(100)
+  rewardDust Int                 @default(0)
+  bossPhases Json?
+  chapter    CampaignChapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  progress   UserStageProgress[]
+
+  @@unique([chapterId, number])
+}
+
+model UserStageProgress {
+  userId    String
+  stageId   String
+  stars     Int           @default(0)
+  completed Boolean       @default(false)
+  claimedAt DateTime?
+  bestTurns Int?
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stage     CampaignStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  @@id([userId, stageId])
+}
+
+enum CurrencyCode {
+  GOLD
+  GEM
+  DUST
+}
+
+model UserCurrency {
+  userId  String
+  code    CurrencyCode
+  balance Int          @default(0)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, code])
+}
+
+model Pack {
+  id         String            @id @default(cuid())
+  code       String            @unique
+  name       String
+  priceGold  Int
+  faction    Faction?
+  guaranteed Rarity?
+  enabled    Boolean           @default(true)
+  slots      PackSlot[]
+  history    PackOpenHistory[]
+}
+
+model PackSlot {
+  id            String @id @default(cuid())
+  packId        String
+  position      Int
+  rarityWeights Json
+  pack          Pack   @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, position])
+}
+
+model PackOpenHistory {
+  id         String   @id @default(cuid())
+  requestId  String
+  userId     String
+  packId     String
+  seedRef    String
+  result     Json
+  pityBefore Int
+  pityAfter  Int
+  openedAt   DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pack       Pack     @relation(fields: [packId], references: [id])
+
+  @@unique([userId, requestId])
+  @@index([userId, packId, openedAt])
+}
+
+model PackPity {
+  userId          String
+  packId          String
+  epicMisses      Int    @default(0)
+  legendaryMisses Int    @default(0)
+
+  @@id([userId, packId])
+}
+
+enum MatchStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+enum MatchMode {
+  CASUAL
+  RANKED
+}
+
+model Match {
+  id        String        @id @default(cuid())
+  mode      MatchMode     @default(CASUAL)
+  status    MatchStatus   @default(WAITING)
+  seed      String
+  winnerId  String?
+  reason    String?
+  createdAt DateTime      @default(now())
+  endedAt   DateTime?
+  players   MatchPlayer[]
+  actions   MatchAction[]
+}
+
+model MatchPlayer {
+  matchId        String
+  userId         String
+  deckId         String
+  seat           Int
+  connectedAt    DateTime  @default(now())
+  disconnectedAt DateTime?
+  match          Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([matchId, userId])
+  @@unique([matchId, seat])
+}
+
+model MatchAction {
+  id        String   @id @default(cuid())
+  actionId  String
+  matchId   String
+  userId    String
+  version   Int
+  payload   Json
+  createdAt DateTime @default(now())
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, actionId])
+  @@index([matchId, version])
+}
+
+model RankedSeason {
+  id       String     @id @default(cuid())
+  code     String     @unique
+  name     String
+  startsAt DateTime
+  endsAt   DateTime
+  active   Boolean    @default(false)
+  ranks    UserRank[]
+}
+
+model UserRank {
+  userId        String
+  seasonId      String
+  rating        Int          @default(1000)
+  tier          String       @default("BRONZE")
+  wins          Int          @default(0)
+  losses        Int          @default(0)
+  rewardClaimed Boolean      @default(false)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season        RankedSeason @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, seasonId])
+  @@index([seasonId, rating])
+}
+
+model GameEvent {
+  id           String              @id @default(cuid())
+  code         String              @unique
+  name         String
+  description  String
+  startsAt     DateTime
+  endsAt       DateTime
+  currencyCode String
+  stages       Json
+  shopItems    EventShopItem[]
+  wallets      UserEventCurrency[]
+}
+
+model EventShopItem {
+  id       String    @id @default(cuid())
+  eventId  String
+  cardId   String?
+  name     String
+  cost     Int
+  stock    Int?
+  cosmetic Boolean   @default(false)
+  metadata Json?
+  event    GameEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}
+
+model UserEventCurrency {
+  userId  String
+  eventId String
+  balance Int       @default(0)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   GameEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+}

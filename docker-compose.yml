@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: chronicle
+      POSTGRES_PASSWORD: chronicle
+      POSTGRES_DB: chronicle
+    ports: ["5432:5432"]
+    volumes: [chronicle_pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chronicle"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  chronicle_pg:

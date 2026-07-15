@@ -1,0 +1,1 @@
+{"name":"@chronicle/game-engine","version":"0.4.0","type":"module","main":"src/index.ts","types":"src/index.ts","scripts":{"build":"tsc -p tsconfig.json","typecheck":"tsc -p tsconfig.json --noEmit","lint":"tsc -p tsconfig.json --noEmit","test":"vitest run"},"dependencies":{"@chronicle/shared-types":"workspace:*"},"devDependencies":{"vitest":"^3.2.4"}}

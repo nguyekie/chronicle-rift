@@ -1,0 +1,14 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import { ZodError } from 'zod';
+import auth from './auth.js';import cards from './cards.js';import decks from './decks.js';import campaign from './campaign.js';import packs from './packs.js';import rank from './rank.js';import events from './events.js';import publicRoutes from './public.js';
+import { config } from './config.js';import { errorHandler } from './http.js';import { metrics, rateLimit, telemetry } from './observability.js';
+export const app=express();
+const origins=new Set([config.WEB_ORIGIN,'http://localhost:5173','http://127.0.0.1:5173']);
+app.disable('x-powered-by');
+app.use(helmet({contentSecurityPolicy:false}),cors({origin:(origin,done)=>!origin||origins.has(origin)?done(null,true):done(new Error('CORS_ORIGIN_DENIED')),credentials:true}),express.json({limit:'100kb'}),cookieParser(),telemetry,rateLimit(300,60_000));
+app.get('/health',(_q,r)=>r.json({status:'ok',version:'0.11.0'}));app.get('/metrics',(_q,r)=>r.type('text/plain').send(metrics()));
+app.use('/api/public',publicRoutes);app.use('/api/auth',rateLimit(30,60_000),auth);app.use('/api/cards',cards);app.use('/api/decks',decks);app.use('/api/campaign',campaign);app.use('/api/packs',packs);app.use('/api/rank',rank);app.use('/api/events',events);
+app.use((error:any,_req:any,res:any,next:any)=>error instanceof ZodError?res.status(400).json({error:{code:'VALIDATION_ERROR',message:'Invalid request',details:error.flatten()}}):next(error));app.use(errorHandler);

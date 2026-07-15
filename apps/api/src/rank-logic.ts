@@ -1,0 +1,1 @@
+export function expected(a:number,b:number){return 1/(1+10**((b-a)/400))}export function elo(a:number,b:number,aWon:boolean,k=32){const delta=Math.round(k*((aWon?1:0)-expected(a,b)));return{winner:a+delta,loser:b-delta,delta}}export function tier(r:number){return r>=2000?'LEGEND':r>=1700?'DIAMOND':r>=1500?'PLATINUM':r>=1300?'GOLD':r>=1100?'SILVER':'BRONZE'}

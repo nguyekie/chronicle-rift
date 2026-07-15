@@ -1,0 +1,33 @@
+/* Mobile shell: the main navigation becomes a thumb-friendly bottom bar. */
+@media (max-width: 850px){
+  body{padding-bottom:72px;background-attachment:fixed}
+  header{height:62px;padding:0 14px;z-index:50}
+  header>div small{font-size:7px}header>div strong{font-size:18px}
+  header>span{max-width:55vw;display:flex;align-items:center;justify-content:flex-end;font-size:11px;white-space:nowrap;overflow:hidden}
+  header .link{padding:8px 0 8px 10px;font-size:10px}
+  header nav{position:fixed;display:flex!important;left:0;right:0;bottom:0;height:66px;z-index:100;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;background:#090e18f5;border-top:1px solid #3a465c;box-shadow:0 -8px 30px #0009;padding:0 max(6px,env(safe-area-inset-left));backdrop-filter:blur(14px);-webkit-overflow-scrolling:touch}
+  header nav button{flex:0 0 auto;min-width:82px;min-height:48px;padding:9px 10px;color:#d1d7e1;font-size:10px;line-height:1.2;scroll-snap-align:start;border-right:1px solid #202a3a}
+  header nav button:active{color:#f3cf6d;background:#202a3a}
+  .app{width:100%;margin:22px auto;padding:0 12px 24px;overflow:hidden}
+  .app h1{font-size:26px;line-height:1.12}.subtitle{font-size:12px;margin-bottom:18px}
+  .filters{display:flex!important;overflow-x:auto;gap:8px;margin:18px -12px;padding:0 12px 8px;scroll-snap-type:x mandatory}
+  .filters>*{flex:0 0 175px;min-height:44px;scroll-snap-align:start}.filters input{flex-basis:230px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+  .card{min-height:330px;padding:6px}.card-art{height:145px!important}.card-copy h3{font-size:11px}.card-copy p{font-size:9px;line-height:1.35}.card .action{max-width:calc(100% - 48px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:8px}.combat-stats{transform:none!important;left:auto!important;right:5px!important}.combat-stats span{width:auto!important;min-width:32px!important}
+  .modal{padding:12px;z-index:120}.modal .card{width:min(360px,94vw);max-height:88vh;overflow-y:auto;min-height:0}.modal .card-art{height:240px!important}
+  .builder{display:block!important}.builder>section:first-child{position:static!important;margin-bottom:20px;padding:14px}.deck-head{grid-template-columns:1fr 105px 42px}
+  .limited-vault{padding:15px}.limited-list{grid-template-columns:1fr!important}
+  .pack-catalog{grid-template-columns:1fr!important}.pack-catalog article{padding:12px}.pack-art{height:125px}
+  .opening-stage.active{z-index:130}.rift-pack{width:128px;height:178px}
+  .loot-result{z-index:135!important;inset:0!important;padding:10px!important;border-radius:0!important}.loot-result>header{top:-10px!important;padding:12px 4px!important}.loot-result header h2{font-size:18px}.loot-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}.loot-card{min-height:315px;padding:6px}.loot-art{height:150px}.loot-card h3{font-size:11px}.loot-card p{font-size:8px}.loot-card:last-child{grid-column:span 2;max-width:50%;width:calc(50% - 4px);justify-self:center}.open-again{min-height:44px}
+  .card-detail-overlay{z-index:145;padding:10px}.card-detail{max-height:88dvh;padding:12px}.card-detail .loot-art{height:270px}
+  .battle{min-height:700px;padding:6px}.tutorial{padding:8px;gap:8px;overflow:auto}.battle-top{grid-template-columns:1fr}.turn-orb{margin-top:6px}.battle-row{overflow-x:auto;min-height:115px}.battle-row label{position:sticky;left:0;z-index:2;min-width:58px;background:#101928;padding:6px}.hand-cards{max-width:100%;overflow-x:auto}.battle-card{width:92px;min-width:92px;height:140px}.hand{padding:7px}.combat-log{overflow-x:auto;white-space:nowrap}.victory{font-size:30px}
+  .campaign-scene{min-height:720px}.map-header{padding:22px 16px}.map-header h2{font-size:27px}.map-route{grid-template-columns:repeat(3,1fr);gap:42px 10px;padding:20px 10px 80px}.map-stop button{width:54px;height:54px}.map-stop .path{width:120%}
+  .legal section{padding:16px}.leaderboard li{min-width:520px}.leaderboard ol{overflow-x:auto}.event-stages{grid-template-columns:repeat(4,1fr)!important}.event-shop{grid-template-columns:1fr!important}
+  button,select,input{touch-action:manipulation}
+}
+@media (max-width:390px){
+  .grid{grid-template-columns:1fr!important}.card{min-height:390px}.card-art{height:205px!important}
+  .loot-cards{grid-template-columns:1fr!important}.loot-card,.loot-card:last-child{grid-column:auto;max-width:none;width:100%;min-height:360px}.loot-art{height:210px}
+}
+@media (prefers-reduced-motion:reduce){.loot-card,.rift-pack,.card,.packs article{animation-duration:.01ms!important;transition-duration:.01ms!important}}

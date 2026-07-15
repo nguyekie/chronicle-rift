@@ -1,0 +1,6 @@
+import type {RequestHandler,ErrorRequestHandler} from 'express'; import jwt from 'jsonwebtoken'; import {config} from './config.js';
+export type Claims={sub:string;role:'USER'|'ADMIN'}; declare global { namespace Express { interface Request { auth?:Claims } } }
+export const requireAuth:RequestHandler=(req,res,next)=>{const token=req.headers.authorization?.replace(/^Bearer /,''); if(!token)return res.status(401).json({error:{code:'UNAUTHORIZED',message:'Authentication required'}}); try{req.auth=jwt.verify(token,config.JWT_ACCESS_SECRET) as Claims;next();}catch{return res.status(401).json({error:{code:'INVALID_TOKEN',message:'Access token is invalid or expired'}});}};
+export const requireAdmin:RequestHandler=(req,res,next)=>req.auth?.role==='ADMIN'?next():res.status(403).json({error:{code:'FORBIDDEN',message:'Admin role required'}});
+export class HttpError extends Error{constructor(public status:number,public code:string,message:string,public details?:unknown){super(message)}}
+export const errorHandler:ErrorRequestHandler=(error,_req,res,_next)=>{if(error instanceof HttpError)return res.status(error.status).json({error:{code:error.code,message:error.message,details:error.details}}); console.error(error);return res.status(500).json({error:{code:'INTERNAL_ERROR',message:'Unexpected server error'}})};

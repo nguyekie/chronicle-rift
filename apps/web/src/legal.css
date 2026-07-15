@@ -1,0 +1,1 @@
+.legal{display:grid;grid-template-columns:1fr 1fr;gap:28px}.legal section{background:#111a28;border:1px solid #3d4b61;padding:28px}.legal section div{display:flex;justify-content:space-between;border-bottom:1px solid #283448;padding:9px}.legal section span{color:#d7b35c}@media(max-width:800px){.legal{grid-template-columns:1fr}}
