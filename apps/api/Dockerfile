@@ -16,4 +16,4 @@ COPY --from=build /app/packages ./packages
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml ./
 USER node
 EXPOSE 3000
-CMD ["node","apps/api/dist/server.js"]
+CMD ["sh","-c","pnpm --filter @chronicle/api exec prisma migrate deploy && pnpm --filter @chronicle/api exec prisma db seed && node apps/api/dist/server.js"]

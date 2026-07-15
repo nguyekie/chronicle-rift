@@ -13,19 +13,4 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: WEB_ORIGIN
-        sync: false
-
-  - type: web
-    name: chronicle-rift
-    runtime: static
-    buildCommand: corepack pnpm install --frozen-lockfile && corepack pnpm --filter @chronicle/web build
-    staticPublishPath: ./apps/web/dist
-    envVars:
-      - key: VITE_API_URL
-        sync: false
-      - key: VITE_SOCKET_URL
-        sync: false
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+        value: https://chroniclerift.netlify.app
