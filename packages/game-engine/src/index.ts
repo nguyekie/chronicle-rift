@@ -1,6 +1,6 @@
 export type Row='FRONT'|'MIDDLE'|'BACK';
 export type Keyword='Taunt'|'Shield'|'Rush'|'Silence'|'Ward'|'Foresee'|'Resonance';
-export interface EngineCard {id:string;name:string;type:'UNIT'|'SPELL';cost:number;attack?:number;health?:number;keywords:Keyword[];damage?:number}
+export interface EngineCard {id:string;name:string;description?:string;type:'UNIT'|'SPELL';cost:number;attack?:number;health?:number;keywords:Keyword[];damage?:number}
 export interface CardInstance extends EngineCard {instanceId:string;ownerId:string;currentAttack:number;currentHealth:number;row?:Row;attacked:boolean;shield:boolean;silenced:boolean;summonedTurn:number}
 export interface PlayerState {id:string;leaderHealth:number;maxEnergy:number;energy:number;deck:CardInstance[];hand:CardInstance[];board:Record<Row,CardInstance[]>;graveyard:CardInstance[]}
 export interface GameEvent {type:string;playerId?:string;sourceId?:string;targetId?:string;amount?:number;message:string}
