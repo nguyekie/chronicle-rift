@@ -93,6 +93,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@chronicle/card-data':
+        specifier: workspace:*
+        version: link:../../packages/card-data
       '@chronicle/game-engine':
         specifier: workspace:*
         version: link:../../packages/game-engine
