@@ -7,6 +7,7 @@ import { cardArt } from './card-art';
 import type { DeckDto } from '@chronicle/shared-types';
 import './deck-select.css';
 import './battle-compact.css';
+import './map-fix.css';
 
 const engineDeck=(faction:'IRONVALE'|'ARCANUM'):EngineCard[]=>catalog.filter(c=>c.faction===faction&&c.rarity!=='LIMITED').slice(0,30).map(c=>({id:c.code,name:c.name,description:c.description,type:c.type==='UNIT'?'UNIT':'SPELL',cost:c.cost,attack:c.attack??0,health:c.health??1,keywords:c.keywords.filter(k=>['Taunt','Shield','Rush','Ward','Foresee','Resonance'].includes(k)) as EngineCard['keywords'],damage:c.type==='UNIT'?undefined:Math.max(2,Math.min(7,c.cost))}));
 const keeperDeck=engineDeck('IRONVALE'),aiDeck=engineDeck('ARCANUM');
