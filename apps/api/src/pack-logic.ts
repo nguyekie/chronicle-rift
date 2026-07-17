@@ -5,8 +5,9 @@ export const packRates={
  BASIC:{COMMON:58,UNCOMMON:25,RARE:11,EPIC:4.5,LEGENDARY:1.2,ANCIENT:.25,MYTHIC:.045,CELESTIAL:.005,LIMITED:0},
  IRONVALE:{COMMON:50,UNCOMMON:28,RARE:14,EPIC:6,LEGENDARY:1.6,ANCIENT:.3,MYTHIC:.09,CELESTIAL:.01,LIMITED:0},
  ARCANUM:{COMMON:50,UNCOMMON:28,RARE:14,EPIC:6,LEGENDARY:1.6,ANCIENT:.3,MYTHIC:.09,CELESTIAL:.01,LIMITED:0},
- RIFT_SEAL:{COMMON:35,UNCOMMON:28,RARE:18,EPIC:10,LEGENDARY:5,ANCIENT:2.5,MYTHIC:1.2,CELESTIAL:.3,LIMITED:.5}
+ RIFT_SEAL:{COMMON:35,UNCOMMON:28,RARE:18,EPIC:10,LEGENDARY:5,ANCIENT:2.5,MYTHIC:1.2,CELESTIAL:.3,LIMITED:0}
 }as const;
+export const limitedRatePerPack=.5;
 export type PackCode=keyof typeof packRates;
 export function ratesFor(code:string){return packRates[code as PackCode]??packRates.BASIC}
 export function pickPackRarity(code:string,r:number,e:number,l:number){if(l>=40)return'LEGENDARY';const rates=ratesFor(code),entries=(['CELESTIAL','MYTHIC','ANCIENT','LEGENDARY','EPIC','RARE','UNCOMMON','COMMON']as const).map(name=>[name,rates[name]]as const);let cursor=0,target=r*100;for(const[name,weight]of entries){let adjusted=weight;if(name==='EPIC')adjusted+=Math.max(0,e-11);cursor+=adjusted;if(target<cursor)return name}return'COMMON'}
