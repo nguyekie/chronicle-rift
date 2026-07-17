@@ -34,10 +34,10 @@ router.post('/stages/:id/start', async (req, res) => {
 });
 
 router.post('/stages/:id/complete', async (req, res) => {
-  const input = z.object({ won: z.literal(true), turns: z.number().int().min(1).max(200), leaderHealth: z.number().int().min(1).max(30) }).parse(req.body);
+  const input = z.object({ won: z.literal(true), turns: z.number().int().min(1).max(200), leaderHealth: z.number().int().min(1).max(100) }).parse(req.body);
   const stage = await db.campaignStage.findUnique({ where: { id: req.params.id } });
   if (!stage) throw new HttpError(404, 'STAGE_NOT_FOUND', 'Stage not found');
-  const stars = input.turns <= 8 && input.leaderHealth >= 20 ? 3 : input.turns <= 14 ? 2 : 1;
+  const stars = input.turns <= 8 && input.leaderHealth >= 70 ? 3 : input.turns <= 14 ? 2 : 1;
   const result = await db.$transaction(async tx => {
     const old = await tx.userStageProgress.findUnique({ where: { userId_stageId: { userId: req.auth!.sub, stageId: stage.id } } });
     const first = !old?.claimedAt;
