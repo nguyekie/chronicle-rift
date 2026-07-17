@@ -1,0 +1,25 @@
+.battle{position:relative;isolation:isolate;overflow:hidden}
+.battle>*:not(.battle-ambience):not(.battle-fx){position:relative;z-index:2}
+.battle-ambience{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.battle-ambience i{position:absolute;width:7px;height:7px;border:1px solid #8bcfff99;transform:rotate(45deg);filter:drop-shadow(0 0 7px #55b9ff);animation:rift-drift 8s linear infinite}
+.battle-ambience i:nth-child(1){left:13%;top:78%;animation-delay:-2s}.battle-ambience i:nth-child(2){left:58%;top:86%;animation-delay:-5s}.battle-ambience i:nth-child(3){left:88%;top:72%;animation-delay:-7s}
+.battle-stats{position:absolute!important;z-index:8!important;left:5px!important;right:5px!important;bottom:4px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:4px!important;pointer-events:none}
+.battle-stats span{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;min-width:33px!important;padding:3px 5px!important;border-radius:8px!important;color:#fff!important;font-size:10px!important;line-height:1!important;font-weight:900!important;text-shadow:0 1px 2px #000!important;box-shadow:0 2px 7px #0009,inset 0 1px #fff2!important}
+.battle-stats i{position:static!important;font-style:normal!important;font-size:10px!important;color:inherit!important}
+.battle-stats .attack-stat{background:linear-gradient(145deg,#8e3f21,#3c1d18)!important;border:1px solid #f59a5f!important}
+.battle-stats .health-stat{background:linear-gradient(145deg,#9f2944,#431728)!important;border:1px solid #ff7894!important}
+.battle-fx{position:fixed;z-index:1000!important;left:50%;top:44%;width:190px;height:80px;translate:-50% -50%;display:grid;place-items:center;pointer-events:none;animation:combat-flash .78s ease-out both}
+.battle-fx i{position:absolute;inset:0;border:2px solid #8bd9ff;rotate:45deg;background:radial-gradient(circle,#b9ecff50,transparent 68%);box-shadow:0 0 45px #4cbfff88,inset 0 0 30px #73d2ff55}
+.battle-fx b{position:relative;z-index:1;padding:8px 17px;color:#effbff;background:#07101de8;border:1px solid #89d9ff;letter-spacing:.13em;font-size:14px;text-shadow:0 0 12px #66ccff;white-space:nowrap}
+.battle-fx.fx-damage i,.battle-fx.fx-leader-damage i,.battle-fx.fx-unit-died i{border-color:#ff786e;box-shadow:0 0 45px #ff382e99,inset 0 0 30px #ff584f55}.battle-fx.fx-damage b,.battle-fx.fx-leader-damage b,.battle-fx.fx-unit-died b{border-color:#ff786e;color:#ffd7d3;text-shadow:0 0 12px #ff554c}
+.battle-fx.fx-unit-summoned i{border-color:#e8c358;box-shadow:0 0 48px #f5be3eaa,inset 0 0 30px #ffe06655}.battle-fx.fx-unit-summoned b{border-color:#e8c358;color:#fff0ae;text-shadow:0 0 12px #eabf40}
+.battle-fx.fx-shield-broken i{border-color:#94e8ff}.battle-fx.fx-shield-broken b{color:#bfefff}
+.battle-card.selected:after{content:"";position:absolute;inset:-2px;border-radius:inherit;background:linear-gradient(110deg,transparent 20%,#fff7bd88 48%,transparent 72%);background-size:240% 100%;pointer-events:none;animation:card-shimmer 1.2s linear infinite}
+.rift-line span{display:inline-block;animation:rift-pulse 1.4s ease-in-out infinite}
+@keyframes combat-flash{0%{opacity:0;scale:.25;filter:blur(8px)}28%{opacity:1;scale:1.08;filter:blur(0)}72%{opacity:1;scale:1}100%{opacity:0;scale:1.35;filter:blur(3px)}}
+@keyframes rift-drift{0%{translate:0 20px;opacity:0;rotate:0deg}20%{opacity:.7}100%{translate:35px -520px;opacity:0;rotate:250deg}}
+@keyframes card-shimmer{to{background-position:-240% 0}}
+@keyframes rift-pulse{50%{scale:1.5;filter:drop-shadow(0 0 8px #ffd66b)}}
+@media(min-width:851px){.battle-row .battle-stats{left:auto!important;right:2px!important;bottom:2px!important;width:53px!important;gap:2px!important}.battle-row .battle-stats span{min-width:24px!important;padding:2px!important;font-size:8px!important}.battle-row .battle-stats i{font-size:8px!important}.hand .battle-stats{left:5px!important;right:5px!important;width:auto!important}.hand .battle-stats span{min-width:31px!important;padding:3px 4px!important;font-size:9px!important}}
+@media(max-width:600px){.battle-fx{top:38%;scale:.85}.battle-stats span{font-size:9px!important;min-width:29px!important}}
+@media(prefers-reduced-motion:reduce){.battle-ambience,.battle-fx{display:none}.battle-card.selected:after,.rift-line span{animation:none}}
