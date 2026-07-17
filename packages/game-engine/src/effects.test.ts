@@ -1,0 +1,27 @@
+import { describe, expect, it } from 'vitest';
+import { applyAction, createGame, type EngineCard, type GameState } from './index.js';
+
+const unit=(id:string,keywords:EngineCard['keywords']=[],description=''):EngineCard=>({id,name:id,description,type:'UNIT',cost:1,attack:2,health:3,keywords});
+const filler=Array.from({length:20},(_,i)=>unit(`filler-${i}`));
+function withCard(card:EngineCard):GameState{
+ const state=createGame({seed:4,players:[{id:'a',deck:[card,...filler]},{id:'b',deck:filler}]});
+ state.phase='MAIN';state.turn=2;state.activePlayerId='a';state.players[0].energy=10;state.players[0].maxEnergy=10;
+ const found=[...state.players[0].hand,...state.players[0].deck].find(item=>item.id===card.id)!;
+ state.players[0].hand=state.players[0].hand.filter(item=>item.instanceId!==found.instanceId);
+ state.players[0].deck=state.players[0].deck.filter(item=>item.instanceId!==found.instanceId);
+ state.players[0].hand.unshift(found);return state;
+}
+function summon(state:GameState,row:'FRONT'|'MIDDLE'|'BACK'='FRONT'){
+ return applyAction(state,{type:'PLAY_CARD',playerId:'a',cardInstanceId:state.players[0].hand[0]!.instanceId,row}).state;
+}
+
+describe('card effects',()=>{
+ it('activates Resonance after a spell was played',()=>{let state=withCard(unit('resonant',['Resonance']));state.players[0].spellsPlayedThisTurn=1;state=summon(state);expect(state.players[0].board.FRONT[0]!.currentAttack).toBe(3);expect(state.players[0].board.FRONT[0]!.currentHealth).toBe(4)});
+ it('Foresee sends an expensive top card to the bottom',()=>{let state=withCard(unit('seer',['Foresee']));state.players[0].deck[0]!.cost=8;const oldTop=state.players[0].deck[0]!.instanceId;state=summon(state);expect(state.players[0].deck.at(-1)!.instanceId).toBe(oldTop);expect(state.events.some(event=>event.type==='FORESEE')).toBe(true)});
+ it('summon damage hits the weakest enemy',()=>{let state=withCard(unit('bomber',[],'Triệu hồi: gây 2 sát thương lên đơn vị yếu nhất của địch.'));const enemy=state.players[1].hand[0]!;enemy.currentHealth=3;enemy.row='FRONT';state.players[1].board.FRONT=[enemy];state=summon(state);expect(state.players[1].board.FRONT[0]!.currentHealth).toBe(1)});
+ it('end turn draw activates with fewer than three cards',()=>{let state=withCard(unit('scholar',[],'Cuối lượt: rút 1 lá nếu còn ít hơn 3 lá trên tay.'));state=summon(state,'BACK');state.players[0].hand=[];const before=state.players[0].deck.length;state=applyAction(state,{type:'END_TURN',playerId:'a'}).state;expect(state.players[0].deck.length).toBe(before-1);expect(state.players[0].hand).toHaveLength(1)});
+ it('summon attack buff is applied',()=>{const state=summon(withCard(unit('captain',[],'Triệu hồi: nhận +1 Công trong lượt này.')));expect(state.players[0].board.FRONT[0]!.currentAttack).toBe(3)});
+ it('temporary summon attack expires at end of turn',()=>{let state=summon(withCard(unit('captain',[],'Triệu hồi: nhận +1 Công trong lượt này.')));state=applyAction(state,{type:'END_TURN',playerId:'a'}).state;expect(state.players[0].board.FRONT[0]!.currentAttack).toBe(2)});
+ it('on-hit effect reflects one extra damage',()=>{let state=withCard(unit('attacker',['Rush']));state=summon(state);const defender=state.players[1].hand[0]!;defender.description='Khi bị đánh: gây lại 1 sát thương cho kẻ tấn công.';defender.row='FRONT';state.players[1].board.FRONT=[defender];const attacker=state.players[0].board.FRONT[0]!;state=applyAction(state,{type:'ATTACK',playerId:'a',attackerId:attacker.instanceId,targetId:defender.instanceId}).state;expect(state.players[0].board.FRONT).toHaveLength(0);expect(state.players[0].graveyard.at(-1)!.currentHealth).toBe(0)});
+ it('grand spell splits ten damage and draws two',()=>{const grand:EngineCard={id:'grand',name:'grand',description:'Đại phép: gây 10 sát thương chia đều cho mọi kẻ địch, sau đó rút 2 lá.',type:'SPELL',cost:1,keywords:[],damage:10};let state=withCard(grand);for(let index=0;index<2;index++){const enemy=state.players[1].hand[index]!;enemy.currentHealth=8;enemy.row='FRONT';state.players[1].board.FRONT.push(enemy)}const handBefore=state.players[0].hand.length;state=applyAction(state,{type:'PLAY_CARD',playerId:'a',cardInstanceId:state.players[0].hand[0]!.instanceId}).state;expect(state.players[1].board.FRONT.map(card=>card.currentHealth)).toEqual([3,3]);expect(state.players[0].hand.length).toBe(handBefore-1+2)});
+});
