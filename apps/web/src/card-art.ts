@@ -73,11 +73,26 @@ const normalize = (value: string) => value
   .replace(/[\u0300-\u036f]/g, '')
   .replace(/đ/g, 'd');
 
+const reservoirTiles: Record<string, number> = {
+  'IV-051': 0, 'IV-052': 1, 'IV-053': 2,
+  'AR-051': 3, 'AR-052': 4, 'AR-053': 5,
+  'NE-051': 6, 'NE-052': 7, 'NE-053': 8,
+};
+
 export function cardArt(name: string, code: string) {
+  const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
+  const reservoirTile = reservoirTiles[catalogCode];
+  if (reservoirTile !== undefined) return {
+    className: 'reservoir-art',
+    style: {
+      '--art-x': `${reservoirTile % 3 * 50}%`,
+      '--art-y': `${Math.floor(reservoirTile / 3) * 50}%`,
+    } as CSSProperties,
+  };
   const normalizedName = normalize(name);
   const semanticTile = Object.entries(rules).find(([keyword]) => normalizedName.includes(keyword))?.[1];
-  const faction = code.startsWith('IV') ? 'ironvale' : code.startsWith('AR') ? 'arcanum' : 'neutral';
-  const fallback = Number(code.split('-')[1] ?? 1) - 1;
+  const faction = catalogCode.startsWith('IV') ? 'ironvale' : catalogCode.startsWith('AR') ? 'arcanum' : 'neutral';
+  const fallback = Number(catalogCode.split('-')[1] ?? 1) - 1;
   const tile = semanticTile ?? fallback % 36;
   return {
     className: `faction-${faction}`,

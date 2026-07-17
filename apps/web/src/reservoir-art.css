@@ -1,0 +1,5 @@
+.reservoir-art {
+  background-image: url('/card-art/reservoir-atlas.png') !important;
+  background-size: 300% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}

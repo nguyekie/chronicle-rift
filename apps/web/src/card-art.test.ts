@@ -27,4 +27,11 @@ describe('semantic card art', () => {
     expect(art.className).toBe('faction-arcanum');
     expect(art.style).toMatchObject({ '--art-x': '60%', '--art-y': '0%' });
   });
+
+  it('uses unique AI artwork for every reservoir card', () => {
+    const positions = ['IV-051','IV-052','IV-053','AR-051','AR-052','AR-053','NE-051','NE-052','NE-053']
+      .map(code => JSON.stringify(cardArt('Reservoir', code).style));
+    expect(new Set(positions).size).toBe(9);
+    expect(cardArt('Kỹ Sư Tích Năng', 'IV-051').className).toBe('reservoir-art');
+  });
 });
