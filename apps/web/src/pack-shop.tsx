@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from './api';
 import { cardArt } from './card-art';
 import './bulk-open.css';
+import './limited-rate.css';
 
 const rarity:Record<string,string>={COMMON:'Thường',UNCOMMON:'Ít gặp',RARE:'Hiếm',EPIC:'Sử thi',LEGENDARY:'Huyền thoại',ANCIENT:'Cổ Đại',MYTHIC:'Thần thoại',CELESTIAL:'Thiên Giới',LIMITED:'Giới hạn'};
 const rateOrder=['COMMON','UNCOMMON','RARE','EPIC','LEGENDARY','ANCIENT','MYTHIC','CELESTIAL','LIMITED'];
@@ -42,11 +43,13 @@ export function PackShop(){
   {error&&<div className="pack-error"><b>MỞ GÓI CHƯA THÀNH CÔNG</b><span>{error}</span><button onClick={()=>setError('')}>Đóng</button></div>}
   <div className="packs pack-catalog">{data.packs.map((pack:any)=>{
    const canOpenOne=data.testMode||gold>=pack.priceGold,canOpenTen=data.testMode||gold>=pack.priceGold*10;
+   const limitedTotal=(data.limited??[]).reduce((sum:number,card:any)=>sum+(card.printLimit??0),0);
+   const limitedRemaining=(data.limited??[]).reduce((sum:number,card:any)=>sum+Math.max(0,(card.printLimit??0)-(card.mintedCount??0)),0);
    return <article key={pack.id} className={pack.code==='RIFT_SEAL'?'seal-pack':''}>
     <div className={`pack-art art-${pack.code.length%8}`}><span>✦</span><i>CHRONICLE</i></div>
     <h2>{pack.name}</h2><p>{pack.code==='RIFT_SEAL'?'Gói duy nhất có thể xuất hiện thẻ đánh số giới hạn.':'5 thẻ · Không chứa thẻ đánh số giới hạn.'}</p>
-    <div className="pack-rates"><b>TỶ LỆ MỖI LÁ</b>{rateOrder.filter(key=>(pack.rates?.[key]??0)>0).map(key=><span key={key}><i className={`rate-dot ${key.toLowerCase()}`}/>{rarity[key]??key}<strong>{Number(pack.rates[key]).toLocaleString('vi-VN',{maximumFractionDigits:3})}%</strong></span>)}</div>
-    {pack.code==='RIFT_SEAL'&&<small className="limited-note">Giới hạn: 0,5% mỗi gói 5 lá · nếu trúng sẽ thay thế 1 lá · chỉ khi kho seri còn bản</small>}
+    <div className="pack-rates"><b>{pack.code==='RIFT_SEAL'?'TỶ LỆ CỦA MỖI LÁ THƯỜNG':'TỶ LỆ MỖI LÁ'}</b>{rateOrder.filter(key=>(pack.rates?.[key]??0)>0).map(key=><span key={key}><i className={`rate-dot ${key.toLowerCase()}`}/>{rarity[key]??key}<strong>{Number(pack.rates[key]).toLocaleString('vi-VN',{maximumFractionDigits:3})}%</strong></span>)}</div>
+    {pack.code==='RIFT_SEAL'&&<div className={`limited-rate-panel ${limitedRemaining===0&&!data.testMode?'sold-out':''}`}><div><i className="rate-dot limited"/><b>THẺ GIỚI HẠN · LIMITED</b><strong>0,5% MỖI GÓI</strong></div><p>Hệ thống quay 1 lần cho toàn bộ gói 5 lá · trung bình 1/200 gói · không cộng dồn và chưa có bảo hiểm.</p><small>{data.testMode?'CHẾ ĐỘ TEST · Không chiếm seri thật':limitedRemaining>0?`KHO SERI THẬT: CÒN ${limitedRemaining}/${limitedTotal} BẢN`:'KHO SERI ĐÃ HẾT · HIỆN KHÔNG THỂ MỞ RA LIMITED'}</small></div>}
     <div className="pack-buy-actions">
      <button className="pack-open-button" disabled={Boolean(busy)||!canOpenOne} onClick={()=>open(pack.id,1)}>MỞ 1 GÓI<strong>{data.testMode?'∞':pack.priceGold.toLocaleString('vi-VN')} VÀNG</strong></button>
      <button className="pack-open-button open-ten" disabled={Boolean(busy)||!canOpenTen} onClick={()=>open(pack.id,10)}>MỞ 10 GÓI<strong>{data.testMode?'∞':(pack.priceGold*10).toLocaleString('vi-VN')} VÀNG · 50 THẺ</strong></button>
