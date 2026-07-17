@@ -1,5 +1,89 @@
-import type{CSSProperties}from'react';
-const rules:Record<string,[number,number]>={
- 'phượng hoàng':[2,2],'chó săn':[1,1],'sói':[1,1],'rồng':[19,2],'thần thú':[13,2],'cự thần':[3,0],'golem':[3,0],'thợ rèn':[5,0],'luyện kim':[13,1],'pháo':[6,0],'nỏ':[13,0],'chiến xa':[21,0],'kỵ sĩ':[10,0],'kỵ binh':[10,0],'hiệp sĩ':[20,0],'nữ vương':[23,0],'khiên':[11,0],'giáp':[15,0],'kiếm':[7,0],'mệnh lệnh':[8,0],'đội hình':[8,0],'thành trì':[9,0],'pháo đài':[17,0],'thành lũy':[24,0],'cổng':[14,2],'thư viện':[3,1],'học giả':[0,1],'học viên':[1,1],'pháp sư':[13,1],'phù thủy':[22,1],'tiên tri':[15,1],'tinh cầu':[4,1],'vòng lặp':[14,1],'thời gian':[16,1],'đồng hồ':[6,2],'vương miện':[5,1],'mặt bão':[9,1],'bão':[9,1],'tia chớp':[1,1],'sấm sét':[31,1],'hư không':[24,1],'ngân hà':[9,1],'tinh vân':[26,1],'tinh tú':[2,1],'sao':[4,1],'bản đồ':[3,2],'la bàn':[6,2],'chìa khóa':[7,2],'thương nhân':[4,2],'chữa thương':[3,2],'du hành':[0,2],'mặt nạ':[9,2],'cây':[23,2],'đảo':[16,2],'di vật':[32,2],'cá voi':[10,2],'chim ưng':[26,2],'đại bàng':[26,2],'sa mạc':[22,2]
+import type { CSSProperties } from 'react';
+
+const rules: Record<string, number> = {
+  'manh vo': 32,
+  'phuong hoang': 2,
+  'cho san': 1,
+  'linh thu': 1,
+  'than thu': 13,
+  'cu than': 3,
+  golem: 3,
+  'tho ren': 5,
+  'luyen kim': 13,
+  'phao dai': 17,
+  phao: 6,
+  no: 13,
+  'chien xa': 21,
+  'ky si': 10,
+  'ky binh': 10,
+  'hiep si': 20,
+  'nu vuong': 23,
+  khien: 11,
+  giap: 15,
+  'thanh kiem': 7,
+  kiem: 7,
+  'menh lenh': 8,
+  'co lenh': 8,
+  'doi hinh': 8,
+  'thanh tri': 9,
+  'thanh luy': 24,
+  cong: 14,
+  'thu vien': 3,
+  'hoc gia': 0,
+  'hoc vien': 1,
+  'phap su': 13,
+  'phu thuy': 22,
+  'tien tri': 15,
+  'tinh cau': 4,
+  'vong lap': 14,
+  'thoi gian': 16,
+  'dong ho': 6,
+  'vuong mien': 5,
+  'mat bao': 9,
+  'tia chop': 1,
+  'sam set': 31,
+  'hu khong': 24,
+  'ngan ha': 9,
+  'tinh van': 26,
+  'tinh tu': 2,
+  'mua sao': 4,
+  'ban do': 3,
+  'la ban': 6,
+  'chia khoa': 7,
+  'thuong nhan': 4,
+  'chua thuong': 3,
+  'du hanh': 0,
+  'mat na': 9,
+  cay: 23,
+  dao: 16,
+  'di vat': 32,
+  'ca voi': 10,
+  'chim ung': 26,
+  'dai bang': 26,
+  'sa mac': 22,
+  rong: 19,
+  soi: 1,
+  bao: 9,
+  sao: 4,
 };
-export function cardArt(name:string,code:string){const lower=name.toLocaleLowerCase('vi');let index:number|undefined;for(const[key,[tile]]of Object.entries(rules))if(lower.includes(key)){index=tile;break}const faction=code.startsWith('IV')?'ironvale':code.startsWith('AR')?'arcanum':'neutral',fallback=Number(code.split('-')[1]??1)-1,n=index??fallback%36;return{className:`faction-${faction}`,style:{'--art-x':`${n%6*20}%`,'--art-y':`${Math.floor(n/6)*20}%`}as CSSProperties}}
+
+const normalize = (value: string) => value
+  .toLocaleLowerCase('vi')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/đ/g, 'd');
+
+export function cardArt(name: string, code: string) {
+  const normalizedName = normalize(name);
+  const semanticTile = Object.entries(rules).find(([keyword]) => normalizedName.includes(keyword))?.[1];
+  const faction = code.startsWith('IV') ? 'ironvale' : code.startsWith('AR') ? 'arcanum' : 'neutral';
+  const fallback = Number(code.split('-')[1] ?? 1) - 1;
+  const tile = semanticTile ?? fallback % 36;
+  return {
+    className: `faction-${faction}`,
+    style: {
+      '--art-x': `${tile % 6 * 20}%`,
+      '--art-y': `${Math.floor(tile / 6) * 20}%`,
+    } as CSSProperties,
+  };
+}
