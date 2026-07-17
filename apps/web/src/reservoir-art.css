@@ -3,3 +3,21 @@
   background-size: 300% 300% !important;
   background-position: var(--art-x) var(--art-y) !important;
 }
+
+.ironvale-core-v2-art {
+  background-image: url('/card-art/ironvale-core-v2.png') !important;
+  background-size: 400% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}
+
+.arcanum-core-v2-art {
+  background-image: url('/card-art/arcanum-core-v2.png') !important;
+  background-size: 400% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}
+
+.neutral-core-v2-art {
+  background-image: url('/card-art/neutral-core-v2.png') !important;
+  background-size: 400% 200% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}

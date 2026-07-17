@@ -79,8 +79,43 @@ const reservoirTiles: Record<string, number> = {
   'NE-051': 6, 'NE-052': 7, 'NE-053': 8,
 };
 
+const ironvaleCoreV2: Record<string, [string, string]> = {
+  'IV-001': ['0%', '0%'], 'IV-002': ['33.3333%', '0%'], 'IV-003': ['66.6667%', '0%'], 'IV-004': ['100%', '0%'],
+  'IV-005': ['0%', '50%'], 'IV-006': ['33.3333%', '50%'], 'IV-007': ['66.6667%', '50%'], 'IV-008': ['100%', '50%'],
+  'IV-009': ['0%', '100%'], 'IV-010': ['33.3333%', '100%'], 'IV-011': ['66.6667%', '100%'], 'IV-012': ['100%', '100%'],
+};
+const arcanumCoreV2: Record<string, [string, string]> = {
+  'AR-001': ['0%', '0%'], 'AR-002': ['33.3333%', '0%'], 'AR-003': ['66.6667%', '0%'], 'AR-004': ['100%', '0%'],
+  'AR-005': ['0%', '50%'], 'AR-006': ['33.3333%', '50%'], 'AR-007': ['66.6667%', '50%'], 'AR-008': ['100%', '50%'],
+  'AR-009': ['0%', '100%'], 'AR-010': ['33.3333%', '100%'], 'AR-011': ['66.6667%', '100%'], 'AR-012': ['100%', '100%'],
+};
+const neutralCoreV2: Record<string, [string, string]> = {
+  'NE-001': ['0%', '0%'], 'NE-002': ['33.3333%', '0%'], 'NE-003': ['66.6667%', '0%'], 'NE-004': ['100%', '0%'],
+  'NE-005': ['0%', '100%'], 'NE-006': ['33.3333%', '100%'], 'NE-007': ['66.6667%', '100%'], 'NE-008': ['100%', '100%'],
+};
+
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
+  const reviewedIronvaleArt = ironvaleCoreV2[catalogCode];
+  if (reviewedIronvaleArt) {
+    return {
+      className: 'ironvale-core-v2-art',
+      style: {
+        '--art-x': reviewedIronvaleArt[0],
+        '--art-y': reviewedIronvaleArt[1],
+      } as CSSProperties,
+    };
+  }
+  const reviewedArcanumArt = arcanumCoreV2[catalogCode];
+  if (reviewedArcanumArt) return {
+    className: 'arcanum-core-v2-art',
+    style: { '--art-x': reviewedArcanumArt[0], '--art-y': reviewedArcanumArt[1] } as CSSProperties,
+  };
+  const reviewedNeutralArt = neutralCoreV2[catalogCode];
+  if (reviewedNeutralArt) return {
+    className: 'neutral-core-v2-art',
+    style: { '--art-x': reviewedNeutralArt[0], '--art-y': reviewedNeutralArt[1] } as CSSProperties,
+  };
   const reservoirTile = reservoirTiles[catalogCode];
   if (reservoirTile !== undefined) return {
     className: 'reservoir-art',

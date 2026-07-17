@@ -13,7 +13,7 @@ describe('semantic card art', () => {
   });
 
   it('keeps beasts in their card faction', () => {
-    expect(cardArt('Chó Săn Khe Nứt', 'NE-003').className).toBe('faction-neutral');
+    expect(cardArt('Chó Săn Khe Nứt', 'NE-003').className).toBe('neutral-core-v2-art');
   });
 
   it('maps iron giants semantically in Ironvale', () => {
@@ -33,5 +33,23 @@ describe('semantic card art', () => {
       .map(code => JSON.stringify(cardArt('Reservoir', code).style));
     expect(new Set(positions).size).toBe(9);
     expect(cardArt('Kỹ Sư Tích Năng', 'IV-051').className).toBe('reservoir-art');
+  });
+
+  it('uses twelve reviewed artworks for the first Ironvale set', () => {
+    const artwork = Array.from({ length: 12 }, (_, index) => cardArt('Ironvale', `IV-${String(index + 1).padStart(3, '0')}`));
+    expect(artwork.every(art => art.className === 'ironvale-core-v2-art')).toBe(true);
+    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+  });
+
+  it('uses twelve reviewed artworks for the first Arcanum set', () => {
+    const artwork = Array.from({ length: 12 }, (_, index) => cardArt('Arcanum', `AR-${String(index + 1).padStart(3, '0')}`));
+    expect(artwork.every(art => art.className === 'arcanum-core-v2-art')).toBe(true);
+    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+  });
+
+  it('uses eight reviewed artworks for the first Neutral set', () => {
+    const artwork = Array.from({ length: 8 }, (_, index) => cardArt('Neutral', `NE-${String(index + 1).padStart(3, '0')}`));
+    expect(artwork.every(art => art.className === 'neutral-core-v2-art')).toBe(true);
+    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(8);
   });
 });
