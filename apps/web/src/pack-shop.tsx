@@ -1,13 +1,64 @@
-import{useEffect,useState}from'react';import{api}from'./api';import{cardArt}from'./card-art';
+import { useEffect, useState } from 'react';
+import { api } from './api';
+import { cardArt } from './card-art';
+import './bulk-open.css';
+
 const rarity:Record<string,string>={COMMON:'Thường',UNCOMMON:'Ít gặp',RARE:'Hiếm',EPIC:'Sử thi',LEGENDARY:'Huyền thoại',ANCIENT:'Cổ Đại',MYTHIC:'Thần thoại',CELESTIAL:'Thiên Giới',LIMITED:'Giới hạn'};
 const rateOrder=['COMMON','UNCOMMON','RARE','EPIC','LEGENDARY','ANCIENT','MYTHIC','CELESTIAL','LIMITED'];
+const pageSize=10;
+
 export function PackShop(){
- const[data,setData]=useState<any>({packs:[],currency:[]}),[cards,setCards]=useState<any[]>([]),[busy,setBusy]=useState(false),[detail,setDetail]=useState<any>(),[visible,setVisible]=useState(0);
- const load=()=>api<any>('/packs').then(setData);useEffect(()=>{load()},[]);useEffect(()=>{if(cards.length&&visible<cards.length){const timer=window.setTimeout(()=>setVisible(v=>v+1),430);return()=>clearTimeout(timer)}},[cards,visible]);
- const open=async(id:string)=>{setBusy(true);setCards([]);setVisible(0);try{const r=await api<any>(`/packs/${id}/open`,{method:'POST',body:JSON.stringify({requestId:crypto.randomUUID()})});await new Promise(x=>setTimeout(x,700));setCards(r.opened??r.history.result);load()}finally{setBusy(false)}};
- const picture=(c:any)=>cardArt(c.name,c.code);
- return <><div className="wallet">{data.testMode&&<strong className="sandbox-badge"/>}{data.currency.map((x:any)=><b key={x.code}>{x.code}: {data.testMode?'∞':x.balance.toLocaleString('vi-VN')}</b>)}</div>
- <div className="packs pack-catalog">{data.packs.map((p:any)=><article key={p.id} className={p.code==='RIFT_SEAL'?'seal-pack':''}><div className={`pack-art art-${p.code.length%8}`}><span>✦</span><i>CHRONICLE</i></div><h2>{p.name}</h2><p>{p.code==='RIFT_SEAL'?'Gói duy nhất có thể xuất hiện thẻ đánh số giới hạn.':'5 thẻ · Không chứa thẻ đánh số giới hạn.'}</p><div className="pack-rates"><b>TỶ LỆ MỖI LÁ</b>{rateOrder.filter(key=>(p.rates?.[key]??0)>0).map(key=><span key={key}><i className={`rate-dot ${key.toLowerCase()}`}/>{rarity[key]??key}<strong>{Number(p.rates[key]).toLocaleString('vi-VN',{maximumFractionDigits:3})}%</strong></span>)}</div>{p.code==='RIFT_SEAL'&&<small className="limited-note">Giới hạn: 0,5% mỗi gói 5 lá · nếu trúng sẽ thay thế 1 lá · chỉ khi kho seri còn bản</small>}<button className="pack-open-button" disabled={busy} onClick={()=>open(p.id)}>{busy?'ĐANG MỞ…':`MỞ GÓI · ${data.testMode?'∞':p.priceGold.toLocaleString('vi-VN')} VÀNG`}</button></article>)}</div>
- {busy&&<div className="opening-stage active"><div className="rift-pack">✦</div></div>}
- {cards.length>0&&<section className="loot-result"><header><div><small>KẾT QUẢ</small><h2>Đang lật thẻ · Nhấn vào thẻ để đọc chi tiết</h2></div><b>{visible}/{cards.length}</b></header><div className="loot-cards">{cards.map((c,i)=>{const pic=picture(c);return <article key={i} style={pic.style} onClick={()=>i<visible&&setDetail(c)} className={`loot-card ${i<visible?'shown':''} ${c.rarity.toLowerCase()}`}><div className="card-back">✦</div><div className={`loot-art ${pic.className}`}/><small>{rarity[c.rarity]??c.rarity}</small><h3>{c.name}</h3><div className="loot-stats"><b>✦ {c.cost}</b>{c.attack!==null&&<><b>⚔ {c.attack}</b><b>♥ {c.health}</b></>}</div><p>{c.description}</p></article>})}</div><button className="open-again" onClick={()=>{setCards([]);setVisible(0)}}>ĐÓNG</button></section>}
- {detail&&(()=>{const pic=picture(detail);return <div className="card-detail-overlay" onClick={()=>setDetail(null)}><article onClick={e=>e.stopPropagation()} className="card-detail"><button onClick={()=>setDetail(null)}>×</button><div style={pic.style} className={`loot-art ${pic.className}`}/><small>{rarity[detail.rarity]}</small><h2>{detail.name}</h2><div className="detail-stats"><b>Năng lượng {detail.cost}</b>{detail.attack!==null&&<><b>Công {detail.attack}</b><b>Máu {detail.health}</b></>}</div><div className="detail-keywords">{(detail.keywords??[]).map((k:string)=><span key={k}>{k}</span>)}</div><p>{detail.description}</p>{detail.serial&&<strong>SERI {detail.serial}/{detail.printLimit}</strong>}</article></div>})()}</>}
+ const[data,setData]=useState<any>({packs:[],currency:[]});
+ const[cards,setCards]=useState<any[]>([]);
+ const[busy,setBusy]=useState<{done:number;total:number}|null>(null);
+ const[detail,setDetail]=useState<any>();
+ const[visible,setVisible]=useState(0);
+ const[page,setPage]=useState(0);
+ const[error,setError]=useState('');
+ const load=()=>api<any>('/packs').then(setData).catch(reason=>setError((reason as Error).message));
+ useEffect(()=>{load()},[]);
+ useEffect(()=>{if(cards.length&&visible<cards.length){const bulk=cards.length>5;const timer=window.setTimeout(()=>setVisible(value=>Math.min(cards.length,value+(bulk?5:1))),bulk?110:350);return()=>clearTimeout(timer)}},[cards,visible]);
+
+ const open=async(id:string,count:1|10)=>{
+  setBusy({done:0,total:count});setCards([]);setVisible(0);setPage(0);setError('');
+  const opened:any[]=[];
+  try{
+   for(let index=0;index<count;index++){
+    const result=await api<any>(`/packs/${id}/open`,{method:'POST',body:JSON.stringify({requestId:crypto.randomUUID()})});
+    opened.push(...(result.opened??result.history.result));
+    setBusy({done:index+1,total:count});
+   }
+   await new Promise(resolve=>setTimeout(resolve,350));
+  }catch(reason){setError(`${(reason as Error).message||'Không thể mở gói.'}${opened.length?` · Đã mở thành công ${opened.length/5}/${count} gói trước khi gián đoạn.`:''}`)}
+  finally{if(opened.length)setCards(opened);await load();setBusy(null)}
+ };
+ const picture=(card:any)=>cardArt(card.name,card.code);
+ const gold=data.currency.find((item:any)=>item.code==='GOLD')?.balance??0;
+ const pages=Math.ceil(cards.length/pageSize);
+ const shownCards=cards.slice(page*pageSize,(page+1)*pageSize);
+
+ return <>
+  <div className="wallet">{data.testMode&&<strong className="sandbox-badge"/>}{data.currency.map((item:any)=><b key={item.code}>{item.code}: {data.testMode?'∞':item.balance.toLocaleString('vi-VN')}</b>)}</div>
+  {error&&<div className="pack-error"><b>MỞ GÓI CHƯA THÀNH CÔNG</b><span>{error}</span><button onClick={()=>setError('')}>Đóng</button></div>}
+  <div className="packs pack-catalog">{data.packs.map((pack:any)=>{
+   const canOpenOne=data.testMode||gold>=pack.priceGold,canOpenTen=data.testMode||gold>=pack.priceGold*10;
+   return <article key={pack.id} className={pack.code==='RIFT_SEAL'?'seal-pack':''}>
+    <div className={`pack-art art-${pack.code.length%8}`}><span>✦</span><i>CHRONICLE</i></div>
+    <h2>{pack.name}</h2><p>{pack.code==='RIFT_SEAL'?'Gói duy nhất có thể xuất hiện thẻ đánh số giới hạn.':'5 thẻ · Không chứa thẻ đánh số giới hạn.'}</p>
+    <div className="pack-rates"><b>TỶ LỆ MỖI LÁ</b>{rateOrder.filter(key=>(pack.rates?.[key]??0)>0).map(key=><span key={key}><i className={`rate-dot ${key.toLowerCase()}`}/>{rarity[key]??key}<strong>{Number(pack.rates[key]).toLocaleString('vi-VN',{maximumFractionDigits:3})}%</strong></span>)}</div>
+    {pack.code==='RIFT_SEAL'&&<small className="limited-note">Giới hạn: 0,5% mỗi gói 5 lá · nếu trúng sẽ thay thế 1 lá · chỉ khi kho seri còn bản</small>}
+    <div className="pack-buy-actions">
+     <button className="pack-open-button" disabled={Boolean(busy)||!canOpenOne} onClick={()=>open(pack.id,1)}>MỞ 1 GÓI<strong>{data.testMode?'∞':pack.priceGold.toLocaleString('vi-VN')} VÀNG</strong></button>
+     <button className="pack-open-button open-ten" disabled={Boolean(busy)||!canOpenTen} onClick={()=>open(pack.id,10)}>MỞ 10 GÓI<strong>{data.testMode?'∞':(pack.priceGold*10).toLocaleString('vi-VN')} VÀNG · 50 THẺ</strong></button>
+    </div>
+   </article>})}</div>
+  {busy&&<div className="opening-stage active"><div className="rift-pack">✦</div><b>ĐANG MỞ {busy.done}/{busy.total} GÓI…</b></div>}
+  {cards.length>0&&<section className="loot-result">
+   <header><div><small>KẾT QUẢ · {cards.length/5} GÓI</small><h2>Nhấn vào thẻ để đọc chi tiết</h2></div><b>{Math.min(visible,cards.length)}/{cards.length}</b></header>
+   <div className="loot-cards">{shownCards.map((card,localIndex)=>{const index=page*pageSize+localIndex,pic=picture(card);return <article key={index} style={pic.style} onClick={()=>index<visible&&setDetail(card)} className={`loot-card ${index<visible?'shown':''} ${card.rarity.toLowerCase()}`}><div className="card-back">✦</div><div className={`loot-art ${pic.className}`}/><small>{rarity[card.rarity]??card.rarity}</small><h3>{card.name}</h3><div className="loot-stats"><b>✦ {card.cost}</b>{card.attack!==null&&<><b>⚔ {card.attack}</b><b>♥ {card.health}</b></>}</div><p>{card.description}</p></article>})}</div>
+   {pages>1&&<nav className="loot-pages"><button disabled={page===0} onClick={()=>setPage(value=>value-1)}>←</button><b>Trang {page+1}/{pages}</b><button disabled={page===pages-1} onClick={()=>setPage(value=>value+1)}>→</button></nav>}
+   <button className="open-again" onClick={()=>{setCards([]);setVisible(0);setPage(0)}}>ĐÓNG</button>
+  </section>}
+  {detail&&(()=>{const pic=picture(detail);return <div className="card-detail-overlay" onClick={()=>setDetail(null)}><article onClick={event=>event.stopPropagation()} className="card-detail"><button onClick={()=>setDetail(null)}>×</button><div style={pic.style} className={`loot-art ${pic.className}`}/><small>{rarity[detail.rarity]}</small><h2>{detail.name}</h2><div className="detail-stats"><b>Năng lượng {detail.cost}</b>{detail.attack!==null&&<><b>Công {detail.attack}</b><b>Máu {detail.health}</b></>}</div><div className="detail-keywords">{(detail.keywords??[]).map((keyword:string)=><span key={keyword}>{keyword}</span>)}</div><p>{detail.description}</p>{detail.serial&&<strong>SERI {detail.serial}/{detail.printLimit}</strong>}</article></div>})()}
+ </>;
+}
