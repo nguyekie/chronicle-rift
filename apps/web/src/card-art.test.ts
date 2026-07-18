@@ -89,4 +89,7 @@ describe('semantic card art', () => {
   ])('keeps reviewed artwork for %s', (name,code,x,y) => {
     expect(cardArt(name,code).style).toMatchObject({'--art-x':x,'--art-y':y});
   });
+
+  it.each(['IV-022','IV-040','IV-042','IV-046','AR-021','AR-029','AR-037','AR-040','AR-042','AR-045','NE-043','NE-046'])
+  ('uses literal subject artwork for %s',(code)=>expect(cardArt('Exact subject',code).className).toBe('exact-subject-art'));
 });

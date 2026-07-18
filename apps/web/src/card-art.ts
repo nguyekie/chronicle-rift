@@ -104,6 +104,11 @@ const curatedAtlasTiles:Record<string,number>={
   ...Object.fromEntries(arcanumAtlasOrder.map((tile,index)=>[`AR-${String(index+13).padStart(3,'0')}`,tile])),
   ...Object.fromEntries(neutralAtlasOrder.map((tile,index)=>[`NE-${String(index+21).padStart(3,'0')}`,tile])),
 };
+const exactSubjectTiles:Record<string,number>={
+  'IV-022':0,'IV-040':1,'IV-042':2,'IV-046':3,
+  'AR-021':4,'AR-029':5,'AR-037':6,'AR-040':7,
+  'AR-042':8,'AR-045':9,'NE-043':10,'NE-046':11,
+};
 
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
@@ -134,6 +139,11 @@ export function cardArt(name: string, code: string) {
       '--art-x': `${reservoirTile % 3 * 50}%`,
       '--art-y': `${Math.floor(reservoirTile / 3) * 50}%`,
     } as CSSProperties,
+  };
+  const exactSubjectTile=exactSubjectTiles[catalogCode];
+  if(exactSubjectTile!==undefined)return {
+    className:'exact-subject-art',
+    style:{'--art-x':`${exactSubjectTile%4*33.3333}%`,'--art-y':`${Math.floor(exactSubjectTile/4)*50}%`} as CSSProperties,
   };
   const dawnMatch = catalogCode.match(/^(IV|AR|NE)-05([4-7])$/);
   if (dawnMatch) {

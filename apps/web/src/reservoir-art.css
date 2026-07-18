@@ -33,3 +33,9 @@
   background-size: 400% 300% !important;
   background-position: var(--art-x) var(--art-y) !important;
 }
+
+.exact-subject-art {
+  background-image: url('/card-art/exact-subject-atlas-v1.png') !important;
+  background-size: 400% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}
