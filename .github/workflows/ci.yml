@@ -25,6 +25,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @chronicle/api exec prisma generate
       - run: pnpm --filter @chronicle/api exec prisma migrate deploy
+      - run: pnpm --filter @chronicle/api exec prisma db seed
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
       - run: pnpm --filter @chronicle/web exec playwright install --with-deps chromium
       - run: pnpm --filter @chronicle/web test:e2e
