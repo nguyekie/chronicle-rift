@@ -46,7 +46,7 @@
 .action-history article:hover { transform: translateX(3px); background:#18273a; }
 
 .card-inspector { display:none; position:fixed!important; z-index:1500!important; left:50%!important; bottom:22px!important; translate:-50% 0!important; width:min(620px,86vw)!important; min-height:210px; grid-template-columns:190px 1fr; overflow:hidden; text-align:left; color:#eef4ff; background:linear-gradient(135deg,#0a111cfa,#17263afa); border:2px solid #65cfff; border-radius:14px; box-shadow:0 0 0 100vmax #02050a77,0 22px 80px #000,0 0 45px #45bfff55; pointer-events:none; }
-.battle-card:hover .card-inspector { display:grid!important; animation:inspector-in .18s ease-out both; }
+.battle>.card-inspector { display:grid!important; animation:inspector-in .18s ease-out both; }
 .inspector-art { display:block; min-height:210px; background-size:600% 600%!important; background-position:var(--art-x) var(--art-y)!important; }
 .inspector-copy { display:flex; flex-direction:column; gap:10px; padding:24px; }
 .inspector-copy>small { color:#79dcff; letter-spacing:.09em; font-size:10px; }
