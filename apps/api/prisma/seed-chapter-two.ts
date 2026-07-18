@@ -19,7 +19,7 @@ export async function seedChapterTwo(db:PrismaClient,cards:CardSeed[]) {
     const data = {
       name:names[number-1]!, enemyDeck:{faction,codes},
       kind:number===12?'BOSS' as const:'NORMAL' as const,
-      aiLevel:number<=2?'NORMAL' as const:number===12?'BOSS' as const:'HARD' as const,
+      aiLevel:number<=4?'NORMAL' as const:'BOSS' as const,
       rewardGold:number===12?2500:450+number*45,
       rewardDust:number===12?500:number%3===0?80:30,
       bossPhases:number===12?[{phase:1,health:100,passive:'Mirror Learning'},{phase:2,health:55,passive:'Perfect Counter',attackBonus:4},{phase:3,health:25,passive:'Dawn Collapse',attackBonus:7}]:undefined,
