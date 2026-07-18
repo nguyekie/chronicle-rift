@@ -22,7 +22,7 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
   const taunts = enemies.filter(card => card.keywords.includes('Taunt') && !card.silenced);
   const legalTargets = taunts.length ? taunts : enemies;
 
-  if (!taunts.length && ready.reduce((sum, card) => sum + card.currentAttack, 0) >= human.leaderHealth) {
+  if (!enemies.length && ready.reduce((sum, card) => sum + card.currentAttack, 0) >= human.leaderHealth) {
     const lethal = [...ready].sort((a, b) => b.currentAttack - a.currentAttack)[0]!;
     return { type: 'ATTACK', playerId: ai.id, attackerId: lethal.instanceId, targetId: human.id };
   }
@@ -58,7 +58,7 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
 
   if (ready.length) {
     const attacker = [...ready].sort((a, b) => b.currentAttack - a.currentAttack)[0]!;
-    const safeLeaderAttack=!taunts.length&&(style==='ARCANUM'||style==='BOSS'||difficulty>=6)&&attacker.currentHealth>legalTargets.reduce((n,target)=>Math.max(n,target.currentAttack),0);
+    const safeLeaderAttack=!enemies.length;
     if(safeLeaderAttack)return {type:'ATTACK',playerId:ai.id,attackerId:attacker.instanceId,targetId:human.id};
     const target = [...legalTargets].sort((a, b) => (value(b)-b.currentHealth)-(value(a)-a.currentHealth))[0];
     return { type: 'ATTACK', playerId: ai.id, attackerId: attacker.instanceId, targetId: target?.instanceId ?? human.id };
