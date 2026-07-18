@@ -1,0 +1,11 @@
+.pack-buy-actions .currency-dust {
+  border-color: #72d8df;
+  background: linear-gradient(145deg, #174754, #278191);
+  color: #e6ffff;
+  box-shadow: 0 0 20px #48cbd744;
+}
+
+.pack-buy-actions .currency-dust.open-ten {
+  background: linear-gradient(145deg, #225d70, #7351a7);
+  box-shadow: 0 0 22px #48cbd755;
+}

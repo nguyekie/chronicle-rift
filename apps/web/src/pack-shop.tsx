@@ -3,6 +3,7 @@ import { api } from './api';
 import { cardArt } from './card-art';
 import './bulk-open.css';
 import './limited-rate.css';
+import './dust-pack.css';
 
 const rarity:Record<string,string>={COMMON:'Thường',UNCOMMON:'Ít gặp',RARE:'Hiếm',EPIC:'Sử thi',LEGENDARY:'Huyền thoại',ANCIENT:'Cổ Đại',MYTHIC:'Thần thoại',CELESTIAL:'Thiên Giới',LIMITED:'Giới hạn'};
 const rateOrder=['COMMON','UNCOMMON','RARE','EPIC','LEGENDARY','ANCIENT','MYTHIC','CELESTIAL','LIMITED'];
@@ -34,7 +35,8 @@ export function PackShop(){
   finally{if(opened.length)setCards(opened);await load();setBusy(null)}
  };
  const picture=(card:any)=>cardArt(card.name,card.code);
- const gold=data.currency.find((item:any)=>item.code==='GOLD')?.balance??0;
+ const balance=(code:string)=>data.currency.find((item:any)=>item.code===code)?.balance??0;
+ const currencyLabel:Record<string,string>={GOLD:'VÀNG',DUST:'BỤI'};
  const pages=Math.ceil(cards.length/pageSize);
  const shownCards=cards.slice(page*pageSize,(page+1)*pageSize);
 
@@ -42,7 +44,8 @@ export function PackShop(){
   <div className="wallet">{data.testMode&&<strong className="sandbox-badge"/>}{data.currency.map((item:any)=><b key={item.code}>{item.code}: {data.testMode?'∞':item.balance.toLocaleString('vi-VN')}</b>)}</div>
   {error&&<div className="pack-error"><b>MỞ GÓI CHƯA THÀNH CÔNG</b><span>{error}</span><button onClick={()=>setError('')}>Đóng</button></div>}
   <div className="packs pack-catalog">{data.packs.map((pack:any)=>{
-   const canOpenOne=data.testMode||gold>=pack.priceGold,canOpenTen=data.testMode||gold>=pack.priceGold*10;
+   const paymentCode=pack.currencyCode??'GOLD',paymentPrice=pack.price??pack.priceGold;
+   const canOpenOne=data.testMode||balance(paymentCode)>=paymentPrice,canOpenTen=data.testMode||balance(paymentCode)>=paymentPrice*10;
    const limitedTotal=(data.limited??[]).reduce((sum:number,card:any)=>sum+(card.printLimit??0),0);
    const limitedRemaining=(data.limited??[]).reduce((sum:number,card:any)=>sum+Math.max(0,(card.printLimit??0)-(card.mintedCount??0)),0);
    return <article key={pack.id} className={pack.code==='RIFT_SEAL'?'seal-pack':''}>
@@ -51,8 +54,8 @@ export function PackShop(){
     <div className="pack-rates"><b>TỶ LỆ CỦA MỖI LÁ</b>{rateOrder.filter(key=>(pack.rates?.[key]??0)>0).map(key=><span key={key}><i className={`rate-dot ${key.toLowerCase()}`}/>{rarity[key]??key}<strong>{Number(pack.rates[key]).toLocaleString('vi-VN',{maximumFractionDigits:3})}%</strong></span>)}</div>
     {pack.code==='RIFT_SEAL'&&<div className={`limited-rate-panel ${limitedRemaining===0&&!data.testMode?'sold-out':''}`}><div><i className="rate-dot limited"/><b>THẺ GIỚI HẠN · LIMITED</b><strong>0,5% MỖI LÁ</strong></div><p>Mỗi lá được quay LIMITED độc lập · một gói 5 lá có khoảng 2,48% cơ hội trúng ít nhất một thẻ · chưa có bảo hiểm.</p><small>{data.testMode?'CHẾ ĐỘ TEST · Không chiếm seri thật':limitedRemaining>0?`KHO SERI THẬT: CÒN ${limitedRemaining}/${limitedTotal} BẢN`:'KHO SERI ĐÃ HẾT · HIỆN KHÔNG THỂ MỞ RA LIMITED'}</small></div>}
     <div className="pack-buy-actions">
-     <button className="pack-open-button" disabled={Boolean(busy)||!canOpenOne} onClick={()=>open(pack.id,1)}>MỞ 1 GÓI<strong>{data.testMode?'∞':pack.priceGold.toLocaleString('vi-VN')} VÀNG</strong></button>
-     <button className="pack-open-button open-ten" disabled={Boolean(busy)||!canOpenTen} onClick={()=>open(pack.id,10)}>MỞ 10 GÓI<strong>{data.testMode?'∞':(pack.priceGold*10).toLocaleString('vi-VN')} VÀNG · 50 THẺ</strong></button>
+     <button className={`pack-open-button currency-${paymentCode.toLowerCase()}`} disabled={Boolean(busy)||!canOpenOne} onClick={()=>open(pack.id,1)}>MỞ 1 GÓI<strong>{data.testMode?'∞':paymentPrice.toLocaleString('vi-VN')} {currencyLabel[paymentCode]??paymentCode}</strong></button>
+     <button className={`pack-open-button open-ten currency-${paymentCode.toLowerCase()}`} disabled={Boolean(busy)||!canOpenTen} onClick={()=>open(pack.id,10)}>MỞ 10 GÓI<strong>{data.testMode?'∞':(paymentPrice*10).toLocaleString('vi-VN')} {currencyLabel[paymentCode]??paymentCode} · 50 THẺ</strong></button>
     </div>
    </article>})}</div>
   {busy&&<div className="opening-stage active"><div className="rift-pack">✦</div><b>ĐANG MỞ {busy.done}/{busy.total} GÓI…</b></div>}
