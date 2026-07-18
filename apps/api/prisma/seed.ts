@@ -1,5 +1,5 @@
-import {PrismaClient} from '@prisma/client';import {cards} from '@chronicle/card-data';import {packRates} from'../src/pack-logic.js';import argon2 from'argon2';
-const db=new PrismaClient();
+import {PrismaClient} from '@prisma/client';import {cards} from '@chronicle/card-data';import {packRates} from'../src/pack-logic.js';import argon2 from'argon2';import{seedChapterTwo}from'./seed-chapter-two.js';
+const db=new PrismaClient();await seedChapterTwo(db,cards);
 const testPassword=await argon2.hash('Test12345!');const testUser=await db.user.upsert({where:{email:'test@chronicle.local'},update:{passwordHash:testPassword},create:{email:'test@chronicle.local',passwordHash:testPassword,profile:{create:{displayName:'Keeper Thử Nghiệm'}}}});for(const code of ['GOLD','DUST','GEM'] as const)await db.userCurrency.upsert({where:{userId_code:{userId:testUser.id,code}},update:{balance:2_000_000_000},create:{userId:testUser.id,code,balance:2_000_000_000}});
 const set=await db.cardSet.upsert({where:{code:'CORE'},update:{},create:{code:'CORE',name:'Chronicle Rift Core'}});
 for(const card of cards)await db.card.upsert({where:{code:card.code},update:{...card,printLimit:card.printLimit??null,keywords:card.keywords,setId:set.id},create:{...card,keywords:card.keywords,setId:set.id}});

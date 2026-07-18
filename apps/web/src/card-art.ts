@@ -124,6 +124,15 @@ export function cardArt(name: string, code: string) {
       '--art-y': `${Math.floor(reservoirTile / 3) * 50}%`,
     } as CSSProperties,
   };
+  const dawnMatch = catalogCode.match(/^(IV|AR|NE)-05([4-7])$/);
+  if (dawnMatch) {
+    const row = dawnMatch[1] === 'IV' ? 0 : dawnMatch[1] === 'AR' ? 1 : 2;
+    const column = Number(dawnMatch[2]) - 4;
+    return {
+      className: 'dawn-art',
+      style: { '--art-x': `${column * 33.3333}%`, '--art-y': `${row * 50}%` } as CSSProperties,
+    };
+  }
   const match = catalogCode.match(/^(IV|AR|NE)-(\d{3})$/);
   if (match) {
     const number = Number(match[2]);

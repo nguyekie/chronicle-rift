@@ -27,3 +27,9 @@
   background-size: 300% 200% !important;
   background-position: var(--art-x) var(--art-y) !important;
 }
+
+.dawn-art {
+  background-image: url('/card-art/dawn-atlas-v1.png') !important;
+  background-size: 400% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}

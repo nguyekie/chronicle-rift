@@ -34,7 +34,7 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
     if (trade && trade.score > 0) return { type: 'ATTACK', playerId: ai.id, attackerId: trade.attacker.instanceId, targetId: trade.target.instanceId };
   }
 
-  const playable = ai.hand.filter(card => card.cost <= ai.energy && (card.type !== 'UNIT' || rows.some(row => ai.board[row].length < 3)));
+  const playable = ai.hand.filter(card => card.cost <= ai.energy && (card.type !== 'UNIT' || rows.some(row => ai.board[row].length < 3)) && (card.type==='UNIT'||enemies.length>0));
   const removal = playable.filter(card => card.type === 'SPELL' && enemies.length)
     .map(card => ({ card, target: [...enemies].filter(target => !target.keywords.includes('Ward')).sort((a, b) => value(b) - value(a))[0] }))
     .filter(choice => choice.target)
@@ -43,8 +43,12 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
     return { type: 'PLAY_CARD', playerId: ai.id, cardInstanceId: removal.card.instanceId, targetId: removal.target!.instanceId };
   }
 
-  const best = playable.sort((a, b) => {
-    const score = (card: CardInstance) => card.cost * 2 + (card.type === 'UNIT' ? value(card)+(style==='IRONVALE'&&card.keywords.includes('Taunt')?5:0) : (card.damage ?? 1) * (style==='ARCANUM'?2.8:1.8)) + (card.cost === ai.energy ? 2 : 0)+(style==='BOSS'?card.keywords.length*2:0);
+  const best = [...playable].sort((a, b) => {
+    const score = (card: CardInstance) => {
+      const remaining=ai.energy-card.cost,followUp=ai.hand.some(other=>other.instanceId!==card.instanceId&&other.cost<=remaining),curveBonus=followUp?3:remaining===0?2:-remaining*.35;
+      const survival=card.type==='UNIT'&&card.currentHealth>enemies.reduce((n,target)=>Math.max(n,target.currentAttack),0)?1.5:0;
+      return card.cost*1.4+(card.type==='UNIT'?value(card)+(style==='IRONVALE'&&card.keywords.includes('Taunt')?5:0)+survival:(card.damage??1)*(style==='ARCANUM'?3:2)) + curveBonus +(style==='BOSS'?card.keywords.length*2.5:0);
+    };
     return score(b) - score(a);
   })[0];
   if (best) return best.type === 'UNIT'
@@ -53,7 +57,9 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
 
   if (ready.length) {
     const attacker = [...ready].sort((a, b) => b.currentAttack - a.currentAttack)[0]!;
-    const target = [...legalTargets].sort((a, b) => a.currentHealth - b.currentHealth)[0];
+    const safeLeaderAttack=!taunts.length&&(style==='ARCANUM'||style==='BOSS'||difficulty>=6)&&attacker.currentHealth>legalTargets.reduce((n,target)=>Math.max(n,target.currentAttack),0);
+    if(safeLeaderAttack)return {type:'ATTACK',playerId:ai.id,attackerId:attacker.instanceId,targetId:human.id};
+    const target = [...legalTargets].sort((a, b) => (value(b)-b.currentHealth)-(value(a)-a.currentHealth))[0];
     return { type: 'ATTACK', playerId: ai.id, attackerId: attacker.instanceId, targetId: target?.instanceId ?? human.id };
   }
   return { type: 'END_TURN', playerId: ai.id };

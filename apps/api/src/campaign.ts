@@ -12,12 +12,14 @@ router.get('/', async (req, res) => {
     orderBy: { number: 'asc' },
     include: { stages: { orderBy: { number: 'asc' }, include: { progress: { where: { userId: req.auth!.sub } } } } },
   });
-  res.json(chapters.map(chapter => ({
+  res.json(chapters.map((chapter, chapterIndex) => ({
     ...chapter,
     stages: chapter.stages.map((stage, index) => ({
       ...stage,
       progress: stage.progress[0] ?? null,
-      unlocked: index === 0 || chapter.stages[index - 1]?.progress[0]?.completed === true,
+      unlocked: index === 0
+        ? chapterIndex === 0 || chapters[chapterIndex - 1]?.stages.at(-1)?.progress[0]?.completed === true
+        : chapter.stages[index - 1]?.progress[0]?.completed === true,
     })),
   })));
 });
@@ -30,6 +32,10 @@ router.post('/stages/:id/start', async (req, res) => {
   if (!stage) throw new HttpError(404, 'STAGE_NOT_FOUND', 'Stage not found');
   const index = stage.chapter.stages.findIndex(item => item.id === stage.id);
   if (index > 0 && !stage.chapter.stages[index - 1]!.progress[0]?.completed) throw new HttpError(403, 'STAGE_LOCKED', 'Complete previous stage');
+  if (index === 0 && stage.chapter.number > 1) {
+    const prior = await db.campaignChapter.findUnique({ where: { number: stage.chapter.number - 1 }, include: { stages: { orderBy: { number: 'desc' }, take: 1, include: { progress: { where: { userId: req.auth!.sub } } } } } });
+    if (!prior?.stages[0]?.progress[0]?.completed) throw new HttpError(403, 'CHAPTER_LOCKED', 'Complete previous chapter');
+  }
   res.json({ stageId: stage.id, seed: randomUUID(), enemyDeck: stage.enemyDeck, aiLevel: stage.aiLevel, bossPhases: stage.bossPhases });
 });
 

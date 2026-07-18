@@ -67,4 +67,10 @@ describe('semantic card art', () => {
     expect(artwork.every(art => art.className === 'apex-art')).toBe(true);
     expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(6);
   });
+
+  it('uses twelve distinct artworks for the low-cost dawn set', () => {
+    const artwork = ['IV','AR','NE'].flatMap(prefix => [54,55,56,57].map(number => cardArt('Dawn', `${prefix}-0${number}`)));
+    expect(artwork.every(art => art.className === 'dawn-art')).toBe(true);
+    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+  });
 });
