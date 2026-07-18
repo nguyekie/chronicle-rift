@@ -25,7 +25,18 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @chronicle/api exec prisma generate
       - run: pnpm --filter @chronicle/api exec prisma migrate deploy
-      - run: pnpm --filter @chronicle/api exec prisma db seed
+      - name: Seed test database
+        shell: bash
+        run: |
+          set +e
+          output=$(pnpm --filter @chronicle/api exec prisma db seed 2>&1)
+          code=$?
+          echo "$output"
+          if [ "$code" -ne 0 ]; then
+            summary=$(echo "$output" | tail -n 12 | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+            echo "::error title=Database seed failed::$summary"
+            exit "$code"
+          fi
       - run: pnpm lint && pnpm typecheck && pnpm test && pnpm build
       - run: pnpm --filter @chronicle/web exec playwright install --with-deps chromium
       - run: pnpm --filter @chronicle/web test:e2e
