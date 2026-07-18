@@ -17,6 +17,8 @@ export function PackShop(){
  const[visible,setVisible]=useState(0);
  const[page,setPage]=useState(0);
  const[error,setError]=useState('');
+ const[history,setHistory]=useState<any[]>([]);
+ const[showHistory,setShowHistory]=useState(false);
  const load=()=>api<any>('/packs').then(setData).catch(reason=>setError((reason as Error).message));
  useEffect(()=>{load()},[]);
  useEffect(()=>{if(cards.length&&visible<cards.length){const bulk=cards.length>5;const timer=window.setTimeout(()=>setVisible(value=>Math.min(cards.length,value+(bulk?5:1))),bulk?110:350);return()=>clearTimeout(timer)}},[cards,visible]);
@@ -39,9 +41,10 @@ export function PackShop(){
  const currencyLabel:Record<string,string>={GOLD:'VÀNG',DUST:'BỤI'};
  const pages=Math.ceil(cards.length/pageSize);
  const shownCards=cards.slice(page*pageSize,(page+1)*pageSize);
+ const openHistory=async()=>{setHistory(await api<any[]>('/packs/history'));setShowHistory(true)};
 
  return <>
-  <div className="wallet">{data.testMode&&<strong className="sandbox-badge"/>}{data.currency.map((item:any)=><b key={item.code}>{item.code}: {data.testMode?'∞':item.balance.toLocaleString('vi-VN')}</b>)}</div>
+  <div className="wallet">{data.testMode&&<strong className="sandbox-badge"/>}{data.currency.map((item:any)=><b key={item.code}>{item.code}: {data.testMode?'∞':item.balance.toLocaleString('vi-VN')}</b>)}<button onClick={openHistory}>LỊCH SỬ MỞ GÓI</button></div>
   {error&&<div className="pack-error"><b>MỞ GÓI CHƯA THÀNH CÔNG</b><span>{error}</span><button onClick={()=>setError('')}>Đóng</button></div>}
   <div className="packs pack-catalog">{data.packs.map((pack:any)=>{
    const paymentCode=pack.currencyCode??'GOLD',paymentPrice=pack.price??pack.priceGold;
@@ -66,5 +69,6 @@ export function PackShop(){
    <button className="open-again" onClick={()=>{setCards([]);setVisible(0);setPage(0)}}>ĐÓNG</button>
   </section>}
   {detail&&(()=>{const pic=picture(detail);return <div className="card-detail-overlay" onClick={()=>setDetail(null)}><article onClick={event=>event.stopPropagation()} className="card-detail"><button onClick={()=>setDetail(null)}>×</button><div style={pic.style} className={`loot-art ${pic.className}`}/><small>{rarity[detail.rarity]}</small><h2>{detail.name}</h2><div className="detail-stats"><b>Năng lượng {detail.cost}</b>{detail.attack!==null&&<><b>Công {detail.attack}</b><b>Máu {detail.health}</b></>}</div><div className="detail-keywords">{(detail.keywords??[]).map((keyword:string)=><span key={keyword}>{keyword}</span>)}</div><p>{detail.description}</p>{detail.serial&&<strong>SERI {detail.serial}/{detail.printLimit}</strong>}</article></div>})()}
+  {showHistory&&<div className="card-detail-overlay" onClick={()=>setShowHistory(false)}><section className="pack-history" onClick={event=>event.stopPropagation()}><button onClick={()=>setShowHistory(false)}>×</button><h2>Lịch sử mở gói</h2>{history.length===0?<p>Chưa có lần mở gói nào.</p>:history.map(entry=><article key={entry.id}><b>{entry.pack.name}</b><time>{new Date(entry.openedAt).toLocaleString('vi-VN')}</time><div>{entry.cards.map((card:any,index:number)=><span className={card.rarity?.toLowerCase()} key={index}>{card.name}{card.serial?` #${card.serial}`:''}</span>)}</div></article>)}</section></div>}
  </>;
 }

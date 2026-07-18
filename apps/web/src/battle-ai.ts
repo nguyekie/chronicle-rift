@@ -11,7 +11,8 @@ function summonRow(card: CardInstance, ai: GameState['players'][number]): Row {
   return [...open].sort((a, b) => ai.board[a].length - ai.board[b].length)[0]!;
 }
 
-export function chooseBattleAiAction(state: GameState, difficulty = 1): GameAction {
+export type AiStyle='BALANCED'|'IRONVALE'|'ARCANUM'|'BOSS';
+export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiStyle='BALANCED'): GameAction {
   const ai = state.players.find(player => player.id === 'ai')!;
   const human = state.players.find(player => player.id === 'keeper')!;
   const friendly = units(ai);
@@ -25,7 +26,7 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1): GameActi
     return { type: 'ATTACK', playerId: ai.id, attackerId: lethal.instanceId, targetId: human.id };
   }
 
-  if (difficulty >= 3) {
+  if (difficulty >= 3 || style==='IRONVALE' || style==='BOSS') {
     const trade = ready.flatMap(attacker => legalTargets
       .filter(target => attacker.currentAttack >= target.currentHealth)
       .map(target => ({ attacker, target, score: value(target) - (target.currentAttack >= attacker.currentHealth ? value(attacker) * .7 : 0) })))
@@ -38,12 +39,12 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1): GameActi
     .map(card => ({ card, target: [...enemies].filter(target => !target.keywords.includes('Ward')).sort((a, b) => value(b) - value(a))[0] }))
     .filter(choice => choice.target)
     .sort((a, b) => value(b.target!) - value(a.target!))[0];
-  if (removal && (difficulty >= 4 || value(removal.target!) >= 7)) {
+  if (removal && (difficulty >= 4 || style==='ARCANUM' || style==='BOSS' || value(removal.target!) >= 7)) {
     return { type: 'PLAY_CARD', playerId: ai.id, cardInstanceId: removal.card.instanceId, targetId: removal.target!.instanceId };
   }
 
   const best = playable.sort((a, b) => {
-    const score = (card: CardInstance) => card.cost * 2 + (card.type === 'UNIT' ? value(card) : (card.damage ?? 1) * 1.8) + (card.cost === ai.energy ? 2 : 0);
+    const score = (card: CardInstance) => card.cost * 2 + (card.type === 'UNIT' ? value(card)+(style==='IRONVALE'&&card.keywords.includes('Taunt')?5:0) : (card.damage ?? 1) * (style==='ARCANUM'?2.8:1.8)) + (card.cost === ai.energy ? 2 : 0)+(style==='BOSS'?card.keywords.length*2:0);
     return score(b) - score(a);
   })[0];
   if (best) return best.type === 'UNIT'
@@ -57,4 +58,3 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1): GameActi
   }
   return { type: 'END_TURN', playerId: ai.id };
 }
-
