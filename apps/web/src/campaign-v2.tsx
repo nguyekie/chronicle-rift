@@ -2,6 +2,7 @@ import {useEffect,useState} from 'react';
 import {api} from './api';
 import {BattleWithDeckSelection} from './advanced';
 import './campaign-v2.css';
+import './campaign-layout-fix.css';
 
 type Stage={id:string;number:number;name:string;kind:string;aiLevel:string;rewardGold:number;rewardDust:number;unlocked:boolean;progress?:{stars:number}|null};
 type Chapter={id:string;number:number;name:string;description:string;stages:Stage[]};
