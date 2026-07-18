@@ -11,6 +11,7 @@ import './battle-compact.css';
 import './map-fix.css';
 import './combat-effects.css';
 import './battle-action-feed.css';
+import './battle-cinematic-fix.css';
 
 const spellDamage=(description:string,cost:number)=>{const match=description.match(/gây\s+(\d+)\s+sát thương/i);return match?Number(match[1]):Math.max(2,Math.min(7,cost))};
 const toEngine=(c:(typeof catalog)[number]):EngineCard=>({id:c.code,name:c.name,description:c.description,type:c.type==='UNIT'?'UNIT':'SPELL',cost:c.cost,attack:c.attack??0,health:c.health??1,keywords:c.keywords.filter(k=>['Taunt','Shield','Rush','Ward','Foresee','Resonance'].includes(k)) as EngineCard['keywords'],damage:c.type==='UNIT'?undefined:spellDamage(c.description,c.cost)});
