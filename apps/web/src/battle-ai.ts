@@ -15,6 +15,7 @@ export type AiStyle='BALANCED'|'IRONVALE'|'ARCANUM'|'BOSS';
 export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiStyle='BALANCED'): GameAction {
   const ai = state.players.find(player => player.id === 'ai')!;
   const human = state.players.find(player => player.id === 'keeper')!;
+  if(state.pendingForesee?.playerId===ai.id){const top=ai.deck[0],hasEarly=ai.hand.filter(card=>card.cost<=3).length>=2;return{type:'RESOLVE_FORESEE',playerId:ai.id,choice:top&&top.cost<=Math.max(3,ai.maxEnergy+1)&&!(hasEarly&&top.cost<=2)?'KEEP':'BOTTOM'}}
   const friendly = units(ai);
   const enemies = units(human);
   const ready = friendly.filter(card => !card.attacked && (card.summonedTurn < state.turn || card.keywords.includes('Rush')));
