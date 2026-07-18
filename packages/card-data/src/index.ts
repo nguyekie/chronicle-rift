@@ -49,6 +49,38 @@ const dawnCards:CardSeed[]=[
  {code:'NE-057',name:'Đồng Xu May Mắn',description:'Thi triển: gây 1 sát thương lên mục tiêu. Đồng minh yếu nhất nhận +1 Máu.',type:'SPELL',faction:'NEUTRAL',rarity:'LEGENDARY',cost:1,attack:null,health:null,keywords:[],collectible:true},
 ].map(card=>cardSchema.parse(card));
 const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards];
+const cardCorrections:Record<string,Partial<CardSeed>>={
+ 'IV-011':{type:'SPELL',description:'Thi triển: toàn bộ đồng minh nhận +2 Công trong lượt này.'},
+ 'IV-012':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +4 Máu và Khiên chắn.'},
+ 'IV-013':{type:'EQUIPMENT',description:'Trang bị: đồng minh yếu nhất nhận +1 Công/+4 Máu và Khiên chắn.'},
+ 'IV-014':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +2 Công/+2 Máu.'},
+ 'IV-015':{type:'SPELL',description:'Thi triển: toàn bộ đồng minh nhận +3 Công trong lượt này.'},
+ 'IV-016':{type:'EQUIPMENT',description:'Trang bị: đồng minh yếu nhất nhận Khiên chắn; khi bị đánh, gây lại 2 sát thương.'},
+ 'IV-017':{type:'EQUIPMENT',description:'Trang bị: đồng minh yếu nhất nhận +5 Công.'},
+ 'IV-018':{type:'SPELL',description:'Thi triển: thủ lĩnh hồi 7 Máu; toàn bộ đồng minh nhận +1 Công/+1 Máu.'},
+ 'IV-019':{type:'UNIT',attack:8,health:10,keywords:['Taunt','Shield'],description:'Triệu hồi: toàn bộ đồng minh nhận +2 Công. Hạ gục: hồi 2 Máu cho thủ lĩnh.'},
+ 'IV-020':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +6 Máu.'},
+ 'AR-011':{type:'SPELL',description:'Thi triển: đồng minh mạnh nhất nhận +3 Công/+3 Máu.'},
+ 'AR-012':{type:'TRAP',description:'Bẫy: gây 5 sát thương lên đơn vị địch vừa được triệu hồi.'},
+ 'AR-013':{type:'SPELL',description:'Thi triển: gây 7 sát thương lên mục tiêu.'},
+ 'AR-014':{type:'SPELL',description:'Thi triển: gây 4 sát thương lên tối đa hai đơn vị địch.'},
+ 'AR-015':{type:'TERRAIN',description:'Địa hình: nhận 3 Năng lượng và rút 1 lá.'},
+ 'AR-016':{type:'TRAP',description:'Bẫy: chặn phép tiếp theo của đối thủ và rút 1 lá.'},
+ 'AR-017':{type:'SPELL',description:'Thi triển: đưa một đơn vị địch về tay chủ sở hữu.'},
+ 'AR-018':{type:'UNIT',attack:5,health:9,keywords:['Foresee','Resonance'],description:'Tiên kiến · Cộng hưởng. Cuối lượt: nếu đã dùng phép, rút 1 lá.'},
+ 'AR-019':{type:'TRAP',description:'Bẫy: phép tiếp theo bạn dùng được phát lại với một nửa sát thương.'},
+ 'AR-020':{type:'UNIT',attack:9,health:8,keywords:['Ward','Foresee'],description:'Triệu hồi: rút 2 lá. Mỗi khi dùng phép, nhận +1 Công/+1 Máu.'},
+ 'NE-005':{type:'EQUIPMENT',description:'Trang bị: rút 2 lá rồi đưa 1 lá trên tay xuống cuối bộ bài.'},
+ 'NE-006':{type:'EQUIPMENT',description:'Trang bị: nhận 3 Năng lượng.'},
+ 'NE-007':{type:'SPELL',description:'Thi triển: gây 6 sát thương lên mục tiêu; bỏ qua Khiên chắn.'},
+ 'NE-008':{type:'TERRAIN',description:'Địa hình: rút 1 lá và nhận 2 Năng lượng.'},
+ 'IV-026':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +2 Công và Khiên chắn.'},
+ 'IV-027':{type:'EQUIPMENT',description:'Trang bị: đồng minh yếu nhất nhận +4 Công/+4 Máu.'},
+ 'AR-026':{type:'TERRAIN',description:'Địa hình: rút 2 lá và nhận 2 Năng lượng.'},
+ 'AR-027':{type:'EQUIPMENT',description:'Trang bị: đồng minh mạnh nhất nhận Hộ vệ và +3 Công/+3 Máu.'},
+ 'NE-026':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +3 Máu; rút 1 lá.'},
+ 'NE-027':{type:'EQUIPMENT',description:'Trang bị: đồng minh yếu nhất nhận +2 Công/+5 Máu và Xung kích.'},
+};
 const keywordRules:Record<string,string>={Taunt:'Khiêu khích: đối thủ phải tấn công đơn vị này trước.',Shield:'Khiên chắn: chặn hoàn toàn nguồn sát thương đầu tiên.',Rush:'Xung kích: có thể tấn công ngay trong lượt được triệu hồi.',Foresee:'Tiên kiến: xem trước lá trên cùng và có thể đưa xuống cuối bộ bài.',Resonance:'Cộng hưởng: nhận thêm hiệu ứng khi bạn đã dùng phép trong lượt.',Ward:'Hộ vệ: không thể bị chọn bởi phép của đối thủ.'};
-export const cards:CardSeed[]=rawCards.map((card,i)=>{if(card.rarity==='LIMITED'||card.description.includes(':'))return card;const rules=card.keywords.map(k=>keywordRules[k]).filter(Boolean).join(' ');const description=card.type==='UNIT'?`${rules||'Triệu hồi: nhận +1 Công trong lượt này.'} ${i%2?'Khi hạ gục mục tiêu, hồi 1 Máu cho thủ lĩnh.':'Nếu sống sót giao tranh, nhận +1 Máu.'}`:`Thi triển: gây ${2+i%4} sát thương lên mục tiêu. ${i%2?'Nếu mục tiêu bị hạ, rút 1 lá.':'Đồng minh yếu nhất nhận +1 Máu.'}`;return cardSchema.parse({...card,description})});
+export const cards:CardSeed[]=rawCards.map((original,i)=>{const card=cardSchema.parse({...original,...cardCorrections[original.code]});if(card.rarity==='LIMITED'||card.description.includes(':'))return card;const rules=card.keywords.map(k=>keywordRules[k]).filter(Boolean).join(' ');const description=card.type==='UNIT'?`${rules||'Triệu hồi: nhận +1 Công trong lượt này.'} ${i%2?'Khi hạ gục mục tiêu, hồi 1 Máu cho thủ lĩnh.':'Nếu sống sót giao tranh, nhận +1 Máu.'}`:`Thi triển: gây ${2+i%4} sát thương lên mục tiêu. ${i%2?'Nếu mục tiêu bị hạ, rút 1 lá.':'Đồng minh yếu nhất nhận +1 Máu.'}`;return cardSchema.parse({...card,description})});
 export const starterCodes={IRONVALE:cards.filter(c=>c.faction==='IRONVALE').slice(0,15).flatMap(c=>[c.code,c.code]),ARCANUM:cards.filter(c=>c.faction==='ARCANUM').slice(0,15).flatMap(c=>[c.code,c.code])};
