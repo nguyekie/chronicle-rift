@@ -94,6 +94,17 @@ const neutralCoreV2: Record<string, [string, string]> = {
   'NE-005': ['0%', '100%'], 'NE-006': ['33.3333%', '100%'], 'NE-007': ['66.6667%', '100%'], 'NE-008': ['100%', '100%'],
 };
 
+// Hand-reviewed against every visible atlas cell. The order is deliberately a
+// semantic permutation, not the numeric card order.
+const ironvaleAtlasOrder=[5,8,26,15,13,7,20,22,4,21,23,10,25,31,6,1,9,30,33,32,28,14,18,29,16,11,12,2,27,34,3,19,0,24,17,35];
+const arcanumAtlasOrder=[31,1,18,9,29,2,21,0,5,33,16,3,10,15,7,22,6,20,25,14,11,34,13,19,30,12,4,24,27,26,35,17,32,8,28,23];
+const neutralAtlasOrder=[2,24,6,21,3,31,7,5,32,28,10,14,4,23,17,1,11,27,16,22,30,34,20,12,35,25,9,33];
+const curatedAtlasTiles:Record<string,number>={
+  ...Object.fromEntries(ironvaleAtlasOrder.map((tile,index)=>[`IV-${String(index+13).padStart(3,'0')}`,tile])),
+  ...Object.fromEntries(arcanumAtlasOrder.map((tile,index)=>[`AR-${String(index+13).padStart(3,'0')}`,tile])),
+  ...Object.fromEntries(neutralAtlasOrder.map((tile,index)=>[`NE-${String(index+21).padStart(3,'0')}`,tile])),
+};
+
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
   const reviewedIronvaleArt = ironvaleCoreV2[catalogCode];
@@ -136,16 +147,14 @@ export function cardArt(name: string, code: string) {
   const match = catalogCode.match(/^(IV|AR|NE)-(\d{3})$/);
   if (match) {
     const number = Number(match[2]);
-    // Every catalog card from 013-048 owns one atlas cell. Do not infer art
-    // from its name: keyword inference made unrelated cards share artwork.
-    if (number >= 13 && number <= 48) {
-      const tile = number - 13;
+    const curatedTile=curatedAtlasTiles[catalogCode];
+    if (curatedTile!==undefined) {
       const faction = match[1] === 'IV' ? 'ironvale' : match[1] === 'AR' ? 'arcanum' : 'neutral';
       return {
         className: `faction-${faction}`,
         style: {
-          '--art-x': `${tile % 6 * 20}%`,
-          '--art-y': `${Math.floor(tile / 6) * 20}%`,
+          '--art-x': `${curatedTile % 6 * 20}%`,
+          '--art-y': `${Math.floor(curatedTile / 6) * 20}%`,
         } as CSSProperties,
       };
     }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cardArt } from './card-art';
+import { cards } from '@chronicle/card-data';
 
 describe('semantic card art', () => {
   it('keeps artwork stable when a card name changes', () => {
@@ -9,7 +10,7 @@ describe('semantic card art', () => {
   it('maps Mảnh Vỡ Khởi Nguyên to the floating origin shard', () => {
     const art = cardArt('Mảnh Vỡ Khởi Nguyên', 'NE-029');
     expect(art.className).toBe('faction-neutral');
-    expect(art.style).toMatchObject({ '--art-x': '80%', '--art-y': '40%' });
+    expect(art.style).toMatchObject({ '--art-x': '40%', '--art-y': '100%' });
   });
 
   it('keeps beasts in their card faction', () => {
@@ -19,13 +20,13 @@ describe('semantic card art', () => {
   it('assigns the iron giant its own Ironvale catalog cell', () => {
     const art = cardArt('Cự Thần Thép Đỏ', 'IV-043');
     expect(art.className).toBe('faction-ironvale');
-    expect(art.style).toMatchObject({ '--art-x': '0%', '--art-y': '100%' });
+    expect(art.style).toMatchObject({ '--art-x': '60%', '--art-y': '0%' });
   });
 
   it('assigns the living library its own Arcanum catalog cell', () => {
     const art = cardArt('Thư Viện Sống', 'AR-024');
     expect(art.className).toBe('faction-arcanum');
-    expect(art.style).toMatchObject({ '--art-x': '100%', '--art-y': '20%' });
+    expect(art.style).toMatchObject({ '--art-x': '60%', '--art-y': '0%' });
   });
 
   it('uses unique AI artwork for every reservoir card', () => {
@@ -53,11 +54,11 @@ describe('semantic card art', () => {
     expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(8);
   });
 
-  it('assigns a unique catalog cell to cards 13 through 48', () => {
-    for (const prefix of ['IV', 'AR', 'NE']) {
-      const artwork = Array.from({ length: 36 }, (_, index) =>
-        cardArt('Tên không quyết định tranh', `${prefix}-${String(index + 13).padStart(3, '0')}`));
-      expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(36);
+  it('assigns every existing catalog card a unique artwork inside its faction', () => {
+    for (const faction of ['IRONVALE','ARCANUM','NEUTRAL']) {
+      const factionCards=cards.filter(card=>card.faction===faction);
+      const artwork=factionCards.map(card=>JSON.stringify(cardArt(card.name,card.code)));
+      expect(new Set(artwork).size).toBe(factionCards.length);
     }
   });
 
@@ -72,5 +73,20 @@ describe('semantic card art', () => {
     const artwork = ['IV','AR','NE'].flatMap(prefix => [54,55,56,57].map(number => cardArt('Dawn', `${prefix}-0${number}`)));
     expect(artwork.every(art => art.className === 'dawn-art')).toBe(true);
     expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+  });
+
+  it.each([
+    ['Cờ Lệnh Bất Khuất','IV-026','20%','100%'],
+    ['Cây Cổ Thụ Biết Đi','NE-034','100%','60%'],
+    ['Học Giả Sao Chổi','AR-031','20%','80%'],
+    ['Cá Voi Trên Mây','NE-031','80%','20%'],
+    ['Đại Pháp Sư Orin','AR-020','0%','0%'],
+    ['Người Dệt Thời Gian','AR-023','80%','40%'],
+    ['Hòn Đảo Trôi Dạt','NE-039','80%','40%'],
+    ['Thư Viện Vô Tận','AR-043','100%','100%'],
+    ['Mặt Nạ Cổ Thần','NE-047','60%','20%'],
+    ['Mắt Bão Vĩnh Hằng','AR-025','80%','20%'],
+  ])('keeps reviewed artwork for %s', (name,code,x,y) => {
+    expect(cardArt(name,code).style).toMatchObject({'--art-x':x,'--art-y':y});
   });
 });
