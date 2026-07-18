@@ -13,7 +13,7 @@ function random(state:{rngState:number}){let x=state.rngState|0;x^=x<<13;x^=x>>>
 function shuffle<T>(values:T[],state:{rngState:number}){const a=[...values];for(let i=a.length-1;i>0;i--){const j=Math.floor(random(state)*(i+1));[a[i],a[j]]=[a[j]!,a[i]!]}return a}
 function instance(card:EngineCard,ownerId:string,index:number):CardInstance{return {...card,instanceId:`${ownerId}-${index}-${card.id}`,ownerId,currentAttack:card.attack??0,currentHealth:card.health??0,attacked:false,shield:card.keywords.includes('Shield'),silenced:false,summonedTurn:0}}
 function player(id:string,cards:EngineCard[],state:{rngState:number}):PlayerState{const deck=shuffle(cards.map((c,i)=>instance(c,id,i)),state);return{id,leaderHealth:100,maxEnergy:0,energy:0,spellsPlayedThisTurn:0,deck,hand:[],board:{FRONT:[],MIDDLE:[],BACK:[]},graveyard:[]}}
-function draw(p:PlayerState,n=1){for(let i=0;i<n;i++){const c=p.deck.shift();if(c&&p.hand.length<7)p.hand.push(c);}}
+function draw(p:PlayerState,n=1){for(let i=0;i<n;i++){const c=p.deck.shift();if(c)p.hand.push(c);}}
 export function createGame(input:{seed:number;players:[{id:string;deck:EngineCard[]},{id:string;deck:EngineCard[]}]}):GameState{const state={rngState:input.seed>>>0};const p1=player(input.players[0].id,input.players[0].deck,state),p2=player(input.players[1].id,input.players[1].deck,state);draw(p1,5);draw(p2,5);return{seed:input.seed,rngState:state.rngState,turn:0,activePlayerId:p1.id,players:[p1,p2],phase:'MULLIGAN',events:[],effectQueue:[]}}
 const getPlayers=(s:GameState,id:string)=>{const me=s.players.find(p=>p.id===id),enemy=s.players.find(p=>p.id!==id);return{me,enemy}};
 const units=(p:PlayerState)=>rows.flatMap(r=>p.board[r]);
