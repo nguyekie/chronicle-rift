@@ -21,3 +21,9 @@
   background-size: 400% 200% !important;
   background-position: var(--art-x) var(--art-y) !important;
 }
+
+.apex-art {
+  background-image: url('/card-art/apex-atlas-v1.png') !important;
+  background-size: 300% 200% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+}

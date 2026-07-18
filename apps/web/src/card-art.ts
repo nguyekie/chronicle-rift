@@ -124,6 +124,34 @@ export function cardArt(name: string, code: string) {
       '--art-y': `${Math.floor(reservoirTile / 3) * 50}%`,
     } as CSSProperties,
   };
+  const match = catalogCode.match(/^(IV|AR|NE)-(\d{3})$/);
+  if (match) {
+    const number = Number(match[2]);
+    // Every catalog card from 013-048 owns one atlas cell. Do not infer art
+    // from its name: keyword inference made unrelated cards share artwork.
+    if (number >= 13 && number <= 48) {
+      const tile = number - 13;
+      const faction = match[1] === 'IV' ? 'ironvale' : match[1] === 'AR' ? 'arcanum' : 'neutral';
+      return {
+        className: `faction-${faction}`,
+        style: {
+          '--art-x': `${tile % 6 * 20}%`,
+          '--art-y': `${Math.floor(tile / 6) * 20}%`,
+        } as CSSProperties,
+      };
+    }
+    if (number >= 49 && number <= 50) {
+      const factionOffset = match[1] === 'IV' ? 0 : match[1] === 'AR' ? 2 : 4;
+      const tile = factionOffset + number - 49;
+      return {
+        className: 'apex-art',
+        style: {
+          '--art-x': `${tile % 3 * 50}%`,
+          '--art-y': `${Math.floor(tile / 3) * 100}%`,
+        } as CSSProperties,
+      };
+    }
+  }
   const normalizedName = normalize(name);
   const semanticTile = Object.entries(rules).find(([keyword]) => normalizedName.includes(keyword))?.[1];
   const faction = catalogCode.startsWith('IV') ? 'ironvale' : catalogCode.startsWith('AR') ? 'arcanum' : 'neutral';
