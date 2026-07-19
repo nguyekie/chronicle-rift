@@ -14,6 +14,7 @@ type PrivateRoom={code:string;host:QueueEntry};
 const queues=new Map<string,QueueEntry[]>(),sessions=new Map<string,Session>(),rooms=new Map<string,PrivateRoom>();
 
 export const pruneQueue=(queue:QueueEntry[],connected:Set<string>)=>queue.filter((entry,index,all)=>connected.has(entry.socketId)&&all.findIndex(item=>item.userId===entry.userId)===index);
+export const engineCardId=(catalogCode:string,copy:number)=>`${catalogCode}-${copy}`;
 const removeFromQueues=(userId:string)=>{for(const[mode,queue]of queues)queues.set(mode,queue.filter(entry=>entry.userId!==userId))};
 const filtered=(state:GameState,userId:string)=>({...state,viewerId:userId,players:state.players.map(player=>player.id===userId?player:{...player,hand:player.hand.map(()=>({hidden:true})),deck:Array(player.deck.length).fill({hidden:true})})});
 const spellDamage=(description:string,cost:number)=>Number(description.match(/gây\s+(\d+)\s+sát thương/i)?.[1]??Math.max(2,Math.min(7,cost)));
@@ -21,7 +22,7 @@ const spellDamage=(description:string,cost:number)=>Number(description.match(/g�
 async function engineDeck(deckId:string,userId:string){
  const deck=await db.deck.findFirst({where:{id:deckId,userId},include:{cards:{include:{card:true}}}});
  if(!deck)throw new Error('DECK_NOT_FOUND');
- return deck.cards.flatMap(item=>Array.from({length:item.quantity},(_,index):EngineCard=>({id:`${item.card.id}-${index}`,name:item.card.name,description:item.card.description,type:item.card.type==='UNIT'?'UNIT':'SPELL',cost:item.card.cost,attack:item.card.attack??undefined,health:item.card.health??undefined,keywords:(item.card.keywords as string[]).filter(keyword=>['Taunt','Shield','Rush','Silence','Ward','Foresee','Resonance'].includes(keyword))as any[],damage:item.card.type==='UNIT'?undefined:spellDamage(item.card.description,item.card.cost)})));
+ return deck.cards.flatMap(item=>Array.from({length:item.quantity},(_,index):EngineCard=>({id:engineCardId(item.card.code,index),name:item.card.name,description:item.card.description,type:item.card.type==='UNIT'?'UNIT':'SPELL',cost:item.card.cost,attack:item.card.attack??undefined,health:item.card.health??undefined,keywords:(item.card.keywords as string[]).filter(keyword=>['Taunt','Shield','Rush','Silence','Ward','Foresee','Resonance'].includes(keyword))as any[],damage:item.card.type==='UNIT'?undefined:spellDamage(item.card.description,item.card.cost)})));
 }
 
 async function startMatch(io:Server,a:QueueEntry,b:QueueEntry,mode:string){
