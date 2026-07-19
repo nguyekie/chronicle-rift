@@ -17,11 +17,16 @@ export function PvpLobby() {
   const [matchId, setMatchId] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [mode,setMode]=useState<'CASUAL'|'RANKED'>('CASUAL');
+  const [queueing,setQueueing]=useState(false);
+  const [roomCode,setRoomCode]=useState('');
+  const [joinCode,setJoinCode]=useState('');
   useEffect(() => {
     api<DeckDto[]>('/decks').then(items => { setDecks(items); setDeckId(items[0]?.id ?? ''); });
     const client = io(import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:3100', { auth: { token: localStorage.getItem('accessToken') } });
-    client.on('matchmaking:status', () => setStatus('Đang tìm đối thủ…'));
-    client.on('match:found', data => { setMatchId(data.matchId);localStorage.setItem('chronicle-live-match',data.matchId); setStatus(`Đã ghép trận ${data.matchId.slice(-6)}`); });
+    client.on('matchmaking:status', data => {setQueueing(Boolean(data.queued));setStatus(data.queued?'Đang tìm người chơi đang trực tuyến…':'Đã hủy tìm trận')});
+    client.on('room:created', data=>{setRoomCode(data.code);setStatus('Phòng đã tạo · gửi mã cho bạn bè')});
+    client.on('room:cancelled',()=>{setRoomCode('');setStatus('Đã đóng phòng')});
+    client.on('match:found', data => {setQueueing(false);setRoomCode('');setMatchId(data.matchId);localStorage.setItem('chronicle-live-match',data.matchId); setStatus(`Đã ghép trận ${data.matchId.slice(-6)}`); });
     client.on('match:state', setMatch);
     client.on('match:reconnected', setMatch);
     client.on('match:error', data => setStatus(`Lỗi: ${data.code}`));
@@ -30,9 +35,13 @@ export function PvpLobby() {
     setSocket(client);
     return () => { client.disconnect(); };
   }, []);
-  const join = (nextMode:'CASUAL'|'RANKED') => {setMode(nextMode);setStatus(nextMode==='RANKED'?'Đang tìm đối thủ xếp hạng…':'Đang tìm đối thủ thường…');socket?.emit('matchmaking:join', { mode:nextMode, deckId })};
+  const join = (nextMode:'CASUAL'|'RANKED') => {setMode(nextMode);setQueueing(true);setStatus(nextMode==='RANKED'?'Đang tìm đối thủ xếp hạng…':'Đang tìm đối thủ thường…');socket?.emit('matchmaking:join', { mode:nextMode, deckId })};
+  const cancelQueue=()=>socket?.emit('matchmaking:leave');
+  const createRoom=()=>{setMode('CASUAL');socket?.emit('room:create',{deckId})};
+  const closeRoom=()=>socket?.emit('room:cancel');
+  const enterRoom=()=>{if(joinCode.trim()){setMode('CASUAL');setStatus('Đang vào phòng…');socket?.emit('room:join',{code:joinCode,deckId})}};
   if(match)return <OnlineBattle payload={match} matchId={matchId} mode={mode} socket={socket} status={status}/>;
-  return <div className="pvp-lobby"><section className="pvp-search"><small>CHRONICLE ARENA · MÁY CHỦ TRỰC TIẾP</small><h2>Đối đầu Người Giữ Ký Ức</h2><p>Chọn bộ bài 30 lá. Trận đấu được xử lý hoàn toàn trên máy chủ và tự kết nối lại khi mất mạng ngắn.</p><label>Chọn bộ bài<select value={deckId} onChange={event => setDeckId(event.target.value)}>{decks.map(deck => <option key={deck.id} value={deck.id}>{deck.name} · {deck.cards.reduce((sum,item)=>sum+item.quantity,0)}/30</option>)}</select></label><div className="pvp-modes"><button disabled={!deckId} onClick={() => join('CASUAL')}><b>ĐẤU THƯỜNG</b><span>Không ảnh hưởng điểm hạng</span></button><button disabled={!deckId} onClick={() => join('RANKED')}><b>ĐẤU XẾP HẠNG</b><span>Thắng để tăng ELO và bậc mùa</span></button></div><p className="queue-status">{status}</p></section></div>;
+  return <div className="pvp-lobby"><section className="pvp-search"><small>CHRONICLE ARENA · MÁY CHỦ TRỰC TIẾP</small><h2>Đối đầu Người Giữ Ký Ức</h2><p>Chỉ ghép với người chơi đang kết nối. Bạn có thể tìm trận hoặc tạo phòng riêng bằng mã mời.</p><label>Chọn bộ bài<select value={deckId} disabled={queueing||Boolean(roomCode)} onChange={event => setDeckId(event.target.value)}>{decks.map(deck => <option key={deck.id} value={deck.id}>{deck.name} · {deck.cards.reduce((sum,item)=>sum+item.quantity,0)}/30</option>)}</select></label>{queueing?<div className="pvp-waiting"><i/><b>{mode==='RANKED'?'ĐANG TÌM TRẬN XẾP HẠNG':'ĐANG TÌM TRẬN THƯỜNG'}</b><span>Chỉ nhận đối thủ còn trực tuyến</span><button onClick={cancelQueue}>HỦY SẴN SÀNG</button></div>:roomCode?<div className="pvp-room-ready"><small>MÃ PHÒNG CỦA BẠN</small><strong>{roomCode}</strong><p>Gửi mã này cho người chơi còn lại. Phòng tự đóng nếu chủ phòng rời trang.</p><button onClick={()=>navigator.clipboard?.writeText(roomCode)}>SAO CHÉP MÃ</button><button className="room-cancel" onClick={closeRoom}>ĐÓNG PHÒNG</button></div>:<><div className="pvp-modes"><button disabled={!deckId} onClick={() => join('CASUAL')}><b>TÌM ĐẤU THƯỜNG</b><span>Ghép nhanh · không ảnh hưởng điểm hạng</span></button><button disabled={!deckId} onClick={() => join('RANKED')}><b>ĐẤU XẾP HẠNG</b><span>Có thể hủy trước khi tìm thấy đối thủ</span></button></div><div className="private-room"><div><b>PHÒNG ĐẤU THƯỜNG RIÊNG</b><span>Tạo phòng hoặc nhập mã của bạn bè</span></div><button disabled={!deckId} onClick={createRoom}>TẠO PHÒNG</button><input maxLength={6} value={joinCode} onChange={event=>setJoinCode(event.target.value.toUpperCase())} placeholder="NHẬP MÃ 6 KÝ TỰ"/><button disabled={!deckId||joinCode.trim().length!==6} onClick={enterRoom}>VÀO PHÒNG</button></div></>}<p className="queue-status">{status}</p></section></div>;
 }
 
 const rows=['BACK','MIDDLE','FRONT'] as const;
