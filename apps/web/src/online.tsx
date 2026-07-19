@@ -20,6 +20,7 @@ export function PvpLobby() {
   const [queueing,setQueueing]=useState(false);
   const [roomCode,setRoomCode]=useState('');
   const [joinCode,setJoinCode]=useState('');
+  const [opponentOffline,setOpponentOffline]=useState(false);
   useEffect(() => {
     api<DeckDto[]>('/decks').then(items => { setDecks(items); setDeckId(items[0]?.id ?? ''); });
     const client = io(import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:3100', { auth: { token: localStorage.getItem('accessToken') } });
@@ -27,11 +28,14 @@ export function PvpLobby() {
     client.on('room:created', data=>{setRoomCode(data.code);setStatus('Phòng đã tạo · gửi mã cho bạn bè')});
     client.on('room:cancelled',()=>{setRoomCode('');setStatus('Đã đóng phòng')});
     client.on('match:found', data => {setQueueing(false);setRoomCode('');setMatchId(data.matchId);localStorage.setItem('chronicle-live-match',data.matchId); setStatus(`Đã ghép trận ${data.matchId.slice(-6)}`); });
-    client.on('match:state', setMatch);
-    client.on('match:reconnected', setMatch);
-    client.on('match:error', data => setStatus(`Lỗi: ${data.code}`));
-    client.on('match:end', data => {localStorage.removeItem('chronicle-live-match');setStatus(`Trận kết thúc · Người thắng ${data.winnerId?.slice(-6)}`)});
-    const savedMatch=localStorage.getItem('chronicle-live-match');if(savedMatch){setMatchId(savedMatch);client.emit('match:join',{matchId:savedMatch})}
+    client.on('connect',()=>{setStatus('Đã kết nối máy chủ');const saved=localStorage.getItem('chronicle-live-match');if(saved){setMatchId(saved);client.emit('match:join',{matchId:saved})}});
+    client.on('disconnect',()=>setStatus('Mất kết nối · đang tự kết nối lại…'));
+    client.on('connect_error',error=>setStatus(`Không thể kết nối máy chủ · ${error.message}`));
+    client.on('match:state', data=>{setOpponentOffline(false);setMatch(data)});
+    client.on('match:reconnected', data=>{setOpponentOffline(false);setStatus('Đã kết nối lại trận đấu');setMatch(data)});
+    client.on('match:presence',data=>{if(!data.online){setOpponentOffline(true);setStatus(`Đối thủ mất kết nối · chờ tối đa ${data.graceSeconds??30} giây`)}else setOpponentOffline(false)});
+    client.on('match:error', data => {setStatus(`Lỗi: ${data.code}`);if(['MATCH_NOT_IN_MEMORY','MATCH_NOT_FOUND','FORBIDDEN'].includes(data.code)){localStorage.removeItem('chronicle-live-match');setMatch(null);setMatchId('')}});
+    client.on('match:end', data => {localStorage.removeItem('chronicle-live-match');setMatch(null);setMatchId('');setOpponentOffline(false);setStatus(data.reason==='DISCONNECT_TIMEOUT'?'Đối thủ mất kết nối · bạn thắng trận':`Trận kết thúc · Người thắng ${data.winnerId?.slice(-6)}`)});
     setSocket(client);
     return () => { client.disconnect(); };
   }, []);
@@ -40,8 +44,14 @@ export function PvpLobby() {
   const createRoom=()=>{setMode('CASUAL');socket?.emit('room:create',{deckId})};
   const closeRoom=()=>socket?.emit('room:cancel');
   const enterRoom=()=>{if(joinCode.trim()){setMode('CASUAL');setStatus('Đang vào phòng…');socket?.emit('room:join',{code:joinCode,deckId})}};
-  if(match)return <OnlineBattle payload={match} matchId={matchId} mode={mode} socket={socket} status={status}/>;
+  if(match)return match.state.phase==='MULLIGAN'?<OnlineMulligan payload={match} matchId={matchId} mode={mode} socket={socket} status={status} opponentOffline={opponentOffline}/>:<OnlineBattle payload={match} matchId={matchId} mode={mode} socket={socket} status={status}/>;
   return <div className="pvp-lobby"><section className="pvp-search"><small>CHRONICLE ARENA · MÁY CHỦ TRỰC TIẾP</small><h2>Đối đầu Người Giữ Ký Ức</h2><p>Chỉ ghép với người chơi đang kết nối. Bạn có thể tìm trận hoặc tạo phòng riêng bằng mã mời.</p><label>Chọn bộ bài<select value={deckId} disabled={queueing||Boolean(roomCode)} onChange={event => setDeckId(event.target.value)}>{decks.map(deck => <option key={deck.id} value={deck.id}>{deck.name} · {deck.cards.reduce((sum,item)=>sum+item.quantity,0)}/30</option>)}</select></label>{queueing?<div className="pvp-waiting"><i/><b>{mode==='RANKED'?'ĐANG TÌM TRẬN XẾP HẠNG':'ĐANG TÌM TRẬN THƯỜNG'}</b><span>Chỉ nhận đối thủ còn trực tuyến</span><button onClick={cancelQueue}>HỦY SẴN SÀNG</button></div>:roomCode?<div className="pvp-room-ready"><small>MÃ PHÒNG CỦA BẠN</small><strong>{roomCode}</strong><p>Gửi mã này cho người chơi còn lại. Phòng tự đóng nếu chủ phòng rời trang.</p><button onClick={()=>navigator.clipboard?.writeText(roomCode)}>SAO CHÉP MÃ</button><button className="room-cancel" onClick={closeRoom}>ĐÓNG PHÒNG</button></div>:<><div className="pvp-modes"><button disabled={!deckId} onClick={() => join('CASUAL')}><b>TÌM ĐẤU THƯỜNG</b><span>Ghép nhanh · không ảnh hưởng điểm hạng</span></button><button disabled={!deckId} onClick={() => join('RANKED')}><b>ĐẤU XẾP HẠNG</b><span>Có thể hủy trước khi tìm thấy đối thủ</span></button></div><div className="private-room"><div><b>PHÒNG ĐẤU THƯỜNG RIÊNG</b><span>Tạo phòng hoặc nhập mã của bạn bè</span></div><button disabled={!deckId} onClick={createRoom}>TẠO PHÒNG</button><input maxLength={6} value={joinCode} onChange={event=>setJoinCode(event.target.value.toUpperCase())} placeholder="NHẬP MÃ 6 KÝ TỰ"/><button disabled={!deckId||joinCode.trim().length!==6} onClick={enterRoom}>VÀO PHÒNG</button></div></>}<p className="queue-status">{status}</p></section></div>;
+}
+
+function OnlineMulligan({payload,matchId,mode,socket,status,opponentOffline}:{payload:any;matchId:string;mode:string;socket:Socket|null;status:string;opponentOffline:boolean}){
+ const state=payload.state,viewerId=resolveViewerId(state),me=state.players.find((player:any)=>player.id===viewerId)??state.players[0],myTurn=state.activePlayerId===viewerId;
+ const send=(action:any)=>socket?.emit('match:action',{matchId,actionId:crypto.randomUUID(),action});
+ return <section className="pvp-mulligan"><small>{mode==='RANKED'?'ĐẤU XẾP HẠNG':'ĐẤU THƯỜNG'}</small><h2>{opponentOffline?'Đối thủ đã mất kết nối':myTurn?'Chọn bài khởi đầu':'Đối thủ đang chọn bài khởi đầu'}</h2><div>{me.hand.map((card:any)=><OnlineCard key={card.instanceId} card={card}/>)}</div>{opponentOffline?<p className="presence-warning">Đang chờ kết nối lại. Bạn sẽ thắng sau tối đa 30 giây.</p>:myTurn?<button onClick={()=>send({type:'MULLIGAN',cardInstanceIds:[]})}>GIỮ BÀI VÀ BẮT ĐẦU</button>:<p>Trận đấu sẽ bắt đầu ngay khi đối thủ sẵn sàng…</p>}<p className="mulligan-status">{status}</p><button className="mulligan-leave" onClick={()=>send({type:'CONCEDE'})}>RỜI TRẬN</button></section>;
 }
 
 const rows=['BACK','MIDDLE','FRONT'] as const;
