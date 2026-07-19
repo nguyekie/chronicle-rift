@@ -1,0 +1,2 @@
+import{describe,expect,it}from'vitest';import{resolveViewerId}from'./pvp-state.js';
+describe('PvP viewer identity',()=>{it('uses the explicit viewer id from a new realtime server',()=>expect(resolveViewerId({viewerId:'b',players:[{id:'a',hand:[{hidden:true}]},{id:'b',hand:[{}]}]})).toBe('b'));it('infers the viewer from visible cards for old sessions',()=>expect(resolveViewerId({players:[{id:'a',hand:[{hidden:true}]},{id:'b',hand:[{}]}]})).toBe('b'))});

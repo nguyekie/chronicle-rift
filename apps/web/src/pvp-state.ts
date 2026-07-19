@@ -1,0 +1,1 @@
+export function resolveViewerId(state:{viewerId?:string;players:Array<{id:string;hand:Array<{hidden?:boolean}>}>}){return state.viewerId??state.players.find(player=>player.hand.some(card=>!card.hidden))?.id??state.players[0]?.id}
