@@ -15,6 +15,35 @@
   inset: 0 !important;
 }
 
+/* Keep every gameplay overlay in the viewport centre. The generic
+   `.battle > *` rule must never pull cinematics back into document flow. */
+.battle > .battle-fx {
+  position: fixed !important;
+  z-index: 1250 !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  translate: none !important;
+  transform: translate(-50%, -50%) !important;
+}
+.battle > .foresee-choice,
+.online-campaign-battle > .foresee-choice {
+  position: fixed !important;
+  z-index: 1450 !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  display: grid !important;
+  place-items: center !important;
+  transform: none !important;
+}
+.battle:has(> .foresee-choice) > .card-inspector,
+.battle:has(> .spell-reveal) > .card-inspector,
+.battle:has(> .limited-cinematic) > .card-inspector {
+  display: none !important;
+}
+
 @media (min-width: 1100px) {
   .battle {
     width: calc(100% - 304px);
