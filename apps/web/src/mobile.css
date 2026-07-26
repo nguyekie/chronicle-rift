@@ -14,7 +14,7 @@
   .filters>*{flex:0 0 175px;min-height:44px;scroll-snap-align:start}.filters input{flex-basis:230px}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
   .card{min-height:330px;padding:6px}.card-art{height:145px!important}.card-copy h3{font-size:11px}.card-copy p{font-size:9px;line-height:1.35}.card .action{max-width:calc(100% - 48px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:8px}.combat-stats{transform:none!important;left:auto!important;right:5px!important}.combat-stats span{width:auto!important;min-width:32px!important}
-  .modal{padding:12px;z-index:120}.modal .card{width:min(360px,94vw);max-height:88vh;overflow-y:auto;min-height:0}.modal .card-art{height:240px!important}
+  .modal{padding:12px;z-index:120}.modal>div{max-height:94dvh;overflow:auto}.modal .card{width:min(360px,94vw);max-height:none;overflow:visible;min-height:0}.modal .card-art{height:240px!important}.modal .deck-tools{position:sticky;bottom:0;background:#0b1019;padding-top:7px;z-index:8}
   .builder{display:block!important}.builder>section:first-child{position:static!important;margin-bottom:20px;padding:14px}.deck-head{grid-template-columns:1fr 105px 42px}
   .limited-vault{padding:15px}.limited-list{grid-template-columns:1fr!important}
   .pack-catalog{grid-template-columns:1fr!important}.pack-catalog article{padding:12px}.pack-art{height:125px}

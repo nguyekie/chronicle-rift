@@ -49,7 +49,24 @@ const dawnCards:CardSeed[]=[
  {code:'NE-056',name:'Dược Sư Lữ Hành',description:'Hộ vệ: không thể bị chọn bởi phép của đối thủ.',type:'UNIT',faction:'NEUTRAL',rarity:'RARE',cost:2,attack:1,health:3,keywords:['Ward'],collectible:true},
  {code:'NE-057',name:'Đồng Xu May Mắn',description:'Thi triển: gây 1 sát thương lên mục tiêu. Đồng minh yếu nhất nhận +1 Máu.',type:'SPELL',faction:'NEUTRAL',rarity:'LEGENDARY',cost:1,attack:null,health:null,keywords:[],collectible:true},
 ].map(card=>cardSchema.parse(card));
-const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards];
+const anomalyCards:CardSeed[]=[
+ {code:'IV-058',name:'Hoàng Đế Tận Nhật',description:'Triệu hồi: phong ấn toàn bộ quân địch, đặt Công của chúng còn 1; toàn bộ đồng minh nhận Khiên chắn. Chỉ có 3 bản.',type:'UNIT',faction:'IRONVALE',rarity:'LIMITED',cost:10,attack:30,health:38,keywords:['Taunt','Shield','Ward'],collectible:true,printLimit:3},
+ {code:'AR-058',name:'Nữ Thần Nghịch Lý Lyra',description:'Triệu hồi: đảo Công và Máu của toàn bộ quân địch, rút 3 lá và nhận 3 Năng lượng. Tiên kiến · Hộ vệ. Chỉ có 3 bản.',type:'UNIT',faction:'ARCANUM',rarity:'LIMITED',cost:10,attack:25,health:32,keywords:['Ward','Foresee','Resonance'],collectible:true,printLimit:3},
+ {code:'IV-059',name:'Vệ Binh Chuông Đồng',description:'Triệu hồi: thủ lĩnh hồi 4 Máu. Khiêu khích.',type:'UNIT',faction:'IRONVALE',rarity:'COMMON',cost:2,attack:2,health:5,keywords:['Taunt'],collectible:true},
+ {code:'IV-060',name:'Đội Phá Thành Hổ Phách',description:'Xung kích. Hạ gục: hoàn lại 2 Năng lượng.',type:'UNIT',faction:'IRONVALE',rarity:'RARE',cost:4,attack:6,health:6,keywords:['Rush'],collectible:true},
+ {code:'IV-061',name:'Chiếu Lệnh Bất Khuất',description:'Thi triển: toàn bộ đồng minh nhận +3 Công/+3 Máu và Khiên chắn.',type:'SPELL',faction:'IRONVALE',rarity:'EPIC',cost:6,attack:null,health:null,keywords:[],collectible:true},
+ {code:'IV-062',name:'Titan Thành Lũy',description:'Triệu hồi: toàn bộ đồng minh nhận +2 Công/+2 Máu. Khiêu khích · Khiên chắn.',type:'UNIT',faction:'IRONVALE',rarity:'CELESTIAL',cost:9,attack:15,health:25,keywords:['Taunt','Shield'],collectible:true},
+ {code:'AR-059',name:'Đom Đóm Ký Ức',description:'Tiên kiến. Nếu sống sót giao tranh, nhận +1 Máu.',type:'UNIT',faction:'ARCANUM',rarity:'UNCOMMON',cost:1,attack:1,health:2,keywords:['Foresee'],collectible:true},
+ {code:'AR-060',name:'Pháp Tuyến Song Sinh',description:'Thi triển: gây 5 sát thương lên mục tiêu. Nếu mục tiêu bị hạ, rút 1 lá.',type:'SPELL',faction:'ARCANUM',rarity:'RARE',cost:3,attack:null,health:null,keywords:[],collectible:true},
+ {code:'AR-061',name:'Kẻ Đánh Cắp Bình Minh',description:'Triệu hồi: gây 6 sát thương lên đơn vị yếu nhất của địch và rút 1 lá. Cộng hưởng.',type:'UNIT',faction:'ARCANUM',rarity:'MYTHIC',cost:7,attack:11,health:15,keywords:['Resonance'],collectible:true},
+ {code:'AR-062',name:'Thiên Thư Không Đáy',description:'Đại phép: gây 18 sát thương chia đều cho mọi kẻ địch, sau đó rút 3 lá và nhận 2 Năng lượng.',type:'SPELL',faction:'ARCANUM',rarity:'CELESTIAL',cost:9,attack:null,health:null,keywords:[],collectible:true},
+ {code:'NE-058',name:'Kẻ Gác Ngã Ba',description:'Khiên chắn. Triệu hồi: nhận 2 Năng lượng.',type:'UNIT',faction:'NEUTRAL',rarity:'UNCOMMON',cost:3,attack:3,health:5,keywords:['Shield'],collectible:true},
+ {code:'NE-059',name:'Dây Chuyền Đoạt Mệnh',description:'Thi triển: gây 7 sát thương lên mục tiêu; bỏ qua Khiên chắn.',type:'EQUIPMENT',faction:'NEUTRAL',rarity:'EPIC',cost:4,attack:null,health:null,keywords:[],collectible:true},
+ {code:'NE-060',name:'Cự Quy Thời Đại',description:'Cuối lượt: nếu còn ít nhất 3 Năng lượng, nhận Khiên chắn. Khiêu khích.',type:'UNIT',faction:'NEUTRAL',rarity:'ANCIENT',cost:7,attack:8,health:19,keywords:['Taunt'],collectible:true},
+ {code:'NE-061',name:'Chợ Đêm Giữa Các Cõi',description:'Địa hình: rút 2 lá và nhận 2 Năng lượng.',type:'TERRAIN',faction:'NEUTRAL',rarity:'LEGENDARY',cost:5,attack:null,health:null,keywords:[],collectible:true},
+ {code:'NE-062',name:'Long Thần Không Tên',description:'Triệu hồi: gây 7 sát thương lên đơn vị yếu nhất của địch và rút 1 lá. Khiên chắn · Xung kích.',type:'UNIT',faction:'NEUTRAL',rarity:'MYTHIC',cost:9,attack:17,health:22,keywords:['Shield','Rush'],collectible:true},
+].map(card=>cardSchema.parse(card));
+const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards,...anomalyCards];
 const cardCorrections:Record<string,Partial<CardSeed>>={
  'IV-011':{type:'SPELL',description:'Thi triển: toàn bộ đồng minh nhận +2 Công trong lượt này.'},
  'IV-012':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +4 Máu và Khiên chắn.'},

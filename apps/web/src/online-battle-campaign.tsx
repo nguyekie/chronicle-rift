@@ -12,6 +12,7 @@ const limitedByName:Record<string,{slug:string;label:string}>={
  'thanh kiem valen':{slug:'valen-blade',label:'THÁNH KIẾM PHÁ TRẬN'},'hao luy cuoi cung':{slug:'last-bastion',label:'HÀO LŨY BẤT DIỆT'},'ky si nhat thuc':{slug:'eclipse-rider',label:'KỴ SĨ NHẬT THỰC'},
  'vuong mien hu khong':{slug:'void-crown',label:'VƯƠNG MIỆN HƯ KHÔNG'},'mua sao bang':{slug:'starfall',label:'MƯA SAO BĂNG'},'elira vuot thoi gian':{slug:'time-break',label:'ELIRA BẺ GÃY THỜI GIAN'},
  'nguoi giu can bang':{slug:'balance',label:'CÂN BẰNG TUYỆT ĐỐI'},'manh vo khoi nguyen':{slug:'origin-shard',label:'MẢNH VỠ KHỞI NGUYÊN'},'riftborn dau tien':{slug:'first-riftborn',label:'RIFTBORN THỨC TỈNH'},
+ 'hoang de tan nhat':{slug:'last-emperor',label:'HOÀNG ĐẾ PHONG ẤN TẬN NHẬT'},'nu than nghich ly lyra':{slug:'paradox-goddess',label:'NỮ THẦN ĐẢO NGHỊCH THỰC TẠI'},
 };
 const eventText=(text:string)=>text.replace('summoned','đã được triệu hồi').replace('damage','sát thương').replace('Unit died','Đơn vị đã bị tiêu diệt').replace('Shield absorbed damage','Khiên đã chặn sát thương').replace('Turn','Lượt');
 

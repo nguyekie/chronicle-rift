@@ -95,6 +95,10 @@
 .limited-balance { animation: limited-scene 2.6s ease both, fx-balance .8s ease-in-out 3; }
 .limited-origin-shard { animation: limited-scene 2.6s ease both, fx-shard 1s ease-out 2; }
 .limited-first-riftborn { animation: limited-scene 2.6s ease both, fx-awaken .8s ease-in-out 3; }
+.limited-last-emperor { color:#ffcf54;background:radial-gradient(circle at 50% 45%,#ffb00066,#49120dbb 35%,#03050bea 70%)!important;animation:limited-scene 3.2s ease both,fx-fortress .48s ease-in-out 6; }
+.limited-last-emperor::before{border-radius:0!important;inset:12%!important;clip-path:polygon(50% 0,61% 34%,100% 38%,69% 60%,79% 100%,50% 76%,21% 100%,31% 60%,0 38%,39% 34%);background:#ffb62022;animation:fx-ai-orbit 2.5s linear infinite!important}
+.limited-paradox-goddess { color:#71f5ff;background:conic-gradient(from 0deg at 50% 50%,#13285bee,#57126ddd,#063d54ee,#13285bee)!important;animation:limited-scene 3.2s ease both,fx-time .25s steps(2) 10; }
+.limited-paradox-goddess::before,.limited-paradox-goddess::after{border-radius:12%!important;transform:rotate(45deg);box-shadow:0 0 80px #65eaff,inset 0 0 50px #b453ff}
 .limited-valen-blade > div::before { content: '⚔'; }
 .limited-last-bastion > div::before { content: '▰'; }
 .limited-eclipse-rider > div::before { content: '◉'; }
