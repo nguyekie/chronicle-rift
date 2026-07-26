@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+ <defs><linearGradient id="rift" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#67dcff"/><stop offset=".5" stop-color="#f5d16c"/><stop offset="1" stop-color="#a46cff"/></linearGradient></defs>
+ <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#09111d" stroke="url(#rift)" stroke-width="3"/>
+ <path d="m32 10 8 15 14 7-14 7-8 15-8-15-14-7 14-7Z" fill="none" stroke="#e9c65e" stroke-width="2"/>
+ <path d="m36 13-9 16 7 4-8 18 14-21-7-4Z" fill="url(#rift)"/>
+</svg>
