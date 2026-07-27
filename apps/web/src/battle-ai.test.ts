@@ -24,4 +24,20 @@ describe('battle AI', () => {
     state.players[0].board.FRONT.push(enemy); state.players[1].energy = 3;
     expect(chooseBattleAiAction(state, 5)).toMatchObject({ type: 'PLAY_CARD', targetId: enemy.instanceId });
   });
+
+  it('boss uses direct spell damage to finish an exposed leader', () => {
+    const state = match(), spell = state.players[1].hand[0]!;
+    Object.assign(spell, { type: 'SPELL', cost: 2, damage: 6, description: 'Gây 6 sát thương.' });
+    state.players[0].leaderHealth = 6; state.players[1].energy = 3;
+    expect(chooseBattleAiAction(state, 12, 'BOSS')).toMatchObject({ type: 'PLAY_CARD', cardInstanceId: spell.instanceId, targetId: 'keeper' });
+  });
+
+  it('boss refuses a pointless suicidal attack', () => {
+    const state = match(), attacker = state.players[1].hand.shift()!, enemy = state.players[0].hand.shift()!;
+    Object.assign(attacker, { ownerId: 'ai', summonedTurn: 1, attacked: false, currentAttack: 2, currentHealth: 2 });
+    Object.assign(enemy, { ownerId: 'keeper', currentAttack: 8, currentHealth: 8 });
+    state.players[1].board.FRONT.push(attacker); state.players[0].board.FRONT.push(enemy);
+    state.players[1].hand=[];state.players[1].energy=0;
+    expect(chooseBattleAiAction(state, 12, 'BOSS')).toMatchObject({ type: 'END_TURN' });
+  });
 });

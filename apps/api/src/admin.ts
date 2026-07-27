@@ -14,6 +14,19 @@ router.get('/overview', async (_req, res) => {
   res.json({ users, cards, openings, packs, limited });
 });
 
+router.get('/cards', async (_req, res) => {
+  const cards = await db.card.findMany({
+    orderBy: [{ faction: 'asc' }, { code: 'asc' }],
+    select: {
+      id: true, code: true, name: true, description: true, type: true,
+      faction: true, rarity: true, cost: true, attack: true, health: true,
+      keywords: true, collectible: true, printLimit: true, mintedCount: true,
+      _count: { select: { owners: true, limitedCopies: true } },
+    },
+  });
+  res.json(cards);
+});
+
 router.patch('/packs/:id', async (req, res) => {
   const input = z.object({ priceGold: z.number().int().min(0).max(10_000_000).optional(), enabled: z.boolean().optional() }).parse(req.body);
   res.json(await db.pack.update({ where: { id: req.params.id }, data: input }));
