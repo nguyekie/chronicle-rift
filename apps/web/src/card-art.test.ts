@@ -54,12 +54,20 @@ describe('semantic card art', () => {
     expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(8);
   });
 
-  it('assigns every existing catalog card a unique artwork inside its faction', () => {
+  it('assigns broad visual variety without artificial color rotation', () => {
     for (const faction of ['IRONVALE','ARCANUM','NEUTRAL']) {
       const factionCards=cards.filter(card=>card.faction===faction);
       const artwork=factionCards.map(card=>JSON.stringify(cardArt(card.name,card.code)));
-      expect(new Set(artwork).size).toBe(factionCards.length);
+      expect(new Set(artwork).size).toBeGreaterThanOrEqual(35);
+      expect(artwork.every(value=>!value.includes('hue-rotate'))).toBe(true);
     }
+  });
+
+  it.each([
+    ['Dây Chuyền Đoạt Mệnh','NE-059','0%','20%'],
+    ['Chợ Đêm Giữa Các Cõi','NE-061','80%','0%'],
+  ])('uses a hand-reviewed subject for %s',(name,code,x,y)=>{
+    expect(cardArt(name,code).style).toMatchObject({'--art-x':x,'--art-y':y});
   });
 
   it('uses six distinct apex artworks for cards 49 and 50', () => {

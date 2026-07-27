@@ -4,7 +4,8 @@ import {cards} from './index.js';
 describe('high-cost card balance',()=>{
   it('scales non-limited high-cost units with cost and rarity',()=>{
     const highCost=cards.filter(card=>card.type==='UNIT'&&card.cost>=6&&card.rarity!=='LIMITED');
-    expect(highCost.every(card=>(card.attack??0)+(card.health??0)>=card.cost*2)).toBe(true);
+    const rarityPower:Record<string,number>={COMMON:0,UNCOMMON:0,RARE:1,EPIC:2,LEGENDARY:3,ANCIENT:4,MYTHIC:5,CELESTIAL:6};
+    expect(highCost.every(card=>(card.attack??0)+(card.health??0)>=card.cost*2+(rarityPower[card.rarity]??0)*2)).toBe(true);
   });
 
   it('makes Bình Năng Lượng a positive tempo card',()=>{

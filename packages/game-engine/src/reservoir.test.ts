@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyAction, createGame, type EngineCard, type GameState } from './index.js';
+import { applyAction, createGame, legalActions, type EngineCard, type GameState } from './index.js';
 
 const filler: EngineCard[] = Array.from({ length: 20 }, (_, i) => ({ id: `f${i}`, name: `Filler ${i}`, type: 'UNIT', cost: 1, attack: 1, health: 2, keywords: [] }));
 const unit = (id: string, description: string, cost = 3): EngineCard => ({ id, name: id, description, type: 'UNIT', cost, attack: 3, health: 4, keywords: [] });
@@ -40,6 +40,17 @@ describe('reservoir card mechanics', () => {
     state.players[1].board.FRONT = [target];
     state = applyAction(state, { type: 'PLAY_CARD', playerId: 'a', cardInstanceId: state.players[0].hand[0]!.instanceId, targetId: target.instanceId }).state;
     expect(state.players[1].board.FRONT).toHaveLength(0);
+  });
+
+  it('lists only valid targets for rift execution', () => {
+    const state = ready(spell('rift', 'Thi triển: tiêu diệt một đơn vị có chi phí từ 3 trở xuống.', 4));
+    const cheap = { ...state.players[1].hand[0]!, cost: 3, row: 'FRONT' as const, summonedTurn: 1 };
+    const expensive = { ...state.players[1].hand[1]!, instanceId: 'expensive', cost: 4, row: 'MIDDLE' as const, summonedTurn: 1 };
+    state.players[1].board.FRONT = [cheap];
+    state.players[1].board.MIDDLE = [expensive];
+    const actions = legalActions(state, 'a');
+    expect(actions).toContainEqual({ type: 'PLAY_CARD', playerId: 'a', cardInstanceId: state.players[0].hand[0]!.instanceId, targetId: cheap.instanceId });
+    expect(actions.some(action => action.type === 'PLAY_CARD' && action.targetId === expensive.instanceId)).toBe(false);
   });
 
   it('unused energy empowers the collector at end of turn', () => {

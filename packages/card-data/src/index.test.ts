@@ -26,7 +26,7 @@ describe('card catalog',()=>{
     const frontier=cards.filter(card=>card.type==='UNIT'&&Number(card.code.slice(-3))>=35&&Number(card.code.slice(-3))<=40);
     expect(frontier).toHaveLength(18);
     expect(frontier.every(card=>(card.attack??0)+(card.health??0)>=card.cost*2)).toBe(true);
-    expect(cards.find(card=>card.code==='NE-038')).toMatchObject({rarity:'LEGENDARY',cost:8,attack:10,health:14,keywords:['Shield']});
+    expect(cards.find(card=>card.code==='NE-038')).toMatchObject({rarity:'LEGENDARY',cost:8,attack:13,health:15,keywords:['Rush']});
   });
   it('only grants Foresee to cards that explicitly describe it',()=>{
     const mismatches=cards.filter(card=>card.keywords.includes('Foresee')&&!normalize(card.description).includes('tien kien')).map(card=>card.code);

@@ -37,7 +37,12 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
 
   const playable = ai.hand.filter(card => card.cost <= ai.energy && (card.type !== 'UNIT' || rows.some(row => ai.board[row].length < 3)) && (card.type==='UNIT'||enemies.length>0));
   const removal = playable.filter(card => card.type === 'SPELL' && enemies.length)
-    .map(card => ({ card, target: [...enemies].filter(target => !target.keywords.includes('Ward')).sort((a, b) => value(b) - value(a))[0] }))
+    .map(card => {
+      const text=(card.description??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase();
+      const execution=text.includes('tieu diet mot don vi co chi phi tu 3 tro xuong');
+      const candidates=enemies.filter(target => !target.keywords.includes('Ward')&&(!execution||target.cost<=3));
+      return { card, target: [...candidates].sort((a, b) => value(b) - value(a))[0] };
+    })
     .filter(choice => choice.target)
     .sort((a, b) => value(b.target!) - value(a.target!))[0];
   if (removal && (difficulty >= 4 || style==='ARCANUM' || style==='BOSS' || value(removal.target!) >= 7)) {

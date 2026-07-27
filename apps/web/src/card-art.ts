@@ -112,7 +112,9 @@ const exactSubjectTiles:Record<string,number>={
 const anomalyTiles:Record<string,number>={
   'IV-058':35,'IV-059':4,'IV-060':21,'IV-061':8,'IV-062':24,
   'AR-058':32,'AR-059':2,'AR-060':31,'AR-061':18,'AR-062':14,
-  'NE-058':7,'NE-059':30,'NE-060':13,'NE-061':23,'NE-062':19,
+  // Hand-reviewed against the subjects in neutral-atlas.png:
+  // key guardian, lethal relic, ancient beast, inter-world merchant, dragon.
+  'NE-058':7,'NE-059':6,'NE-060':35,'NE-061':4,'NE-062':19,
 };
 
 export function cardArt(name: string, code: string) {
@@ -120,7 +122,7 @@ export function cardArt(name: string, code: string) {
   const anomalyTile=anomalyTiles[catalogCode];
   if(anomalyTile!==undefined)return{
     className:catalogCode.startsWith('IV')?'faction-ironvale':catalogCode.startsWith('AR')?'faction-arcanum':'faction-neutral',
-    style:{'--art-x':`${anomalyTile%6*20}%`,'--art-y':`${Math.floor(anomalyTile/6)*20}%`,filter:`hue-rotate(${(Number(catalogCode.slice(-3))-57)*13+(catalogCode.startsWith('AR')?37:catalogCode.startsWith('NE')?71:0)}deg) saturate(1.18) contrast(1.08)`} as CSSProperties,
+    style:{'--art-x':`${anomalyTile%6*20}%`,'--art-y':`${Math.floor(anomalyTile/6)*20}%`} as CSSProperties,
   };
   const reviewedIronvaleArt = ironvaleCoreV2[catalogCode];
   if (reviewedIronvaleArt) {
