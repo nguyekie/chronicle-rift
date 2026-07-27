@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&display=swap');
+
+:root {
+  --font-display-vi: "Noto Serif", "Times New Roman", Georgia, serif;
+  --font-interface-vi: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-synthesis: none;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* Keep Vietnamese names legible instead of synthesizing Cinzel small capitals. */
+:where(
+  h1,
+  h2,
+  h3,
+  .auth h2,
+  .app h1,
+  .hero h1,
+  header strong,
+  .card h3,
+  .card-copy h3,
+  .faction-ribbon,
+  .battle-card strong,
+  .inspector-copy > b,
+  .spell-reveal h2,
+  .foresee-choice h2,
+  .limited-cinematic b,
+  .loot-card h3,
+  .deck-card-name,
+  .deck-choices b,
+  .rift-line,
+  .victory,
+  .loading,
+  .map-header h2,
+  .map-stop label,
+  .guide-book h2,
+  .pvp-search h2,
+  .pvp-room-ready strong,
+  .online-card > b,
+  .online-result h2,
+  .pvp-turn-signal b
+) {
+  font-family: var(--font-display-vi) !important;
+  font-variant: normal !important;
+  font-variant-caps: normal !important;
+  font-feature-settings: "smcp" 0, "c2sc" 0, "liga" 1, "kern" 1 !important;
+}
+
+.card h3,
+.card-copy h3,
+.battle-card strong,
+.online-card > b,
+.loot-card h3,
+.deck-card-name,
+.inspector-copy > b {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  line-height: 1.35;
+}
+
+.card-copy > small,
+.card-copy p,
+.skill-chips,
+.battle-card small,
+.online-card > small,
+.inspector-copy > em {
+  font-family: var(--font-interface-vi);
+  font-variant: normal;
+  font-feature-settings: normal;
+}
