@@ -119,6 +119,15 @@ const anomalyTiles:Record<string,number>={
 
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
+  const newCardMatch=catalogCode.match(/^(IV|AR|NE)-0(5[1-9]|6[0-2])$/);
+  if(newCardMatch){
+    const number=Number(newCardMatch[2]),tile=number-51;
+    const faction=newCardMatch[1]==='IV'?'ironvale':newCardMatch[1]==='AR'?'arcanum':'neutral';
+    return{
+      className:`new-card-art new-card-art-${faction}`,
+      style:{'--art-x':`${tile%4*33.3333}%`,'--art-y':`${Math.floor(tile/4)*50}%`} as CSSProperties,
+    };
+  }
   const anomalyTile=anomalyTiles[catalogCode];
   if(anomalyTile!==undefined)return{
     className:catalogCode.startsWith('IV')?'faction-ironvale':catalogCode.startsWith('AR')?'faction-arcanum':'faction-neutral',

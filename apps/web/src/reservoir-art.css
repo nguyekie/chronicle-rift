@@ -39,3 +39,21 @@
   background-size: 400% 300% !important;
   background-position: var(--art-x) var(--art-y) !important;
 }
+
+.new-card-art {
+  background-size: 400% 300% !important;
+  background-position: var(--art-x) var(--art-y) !important;
+  filter: none !important;
+}
+
+.new-card-art-ironvale {
+  background-image: url('/card-art/ironvale-new-cards-v1.webp') !important;
+}
+
+.new-card-art-arcanum {
+  background-image: url('/card-art/arcanum-new-cards-v1.webp') !important;
+}
+
+.new-card-art-neutral {
+  background-image: url('/card-art/neutral-new-cards-v1.webp') !important;
+}

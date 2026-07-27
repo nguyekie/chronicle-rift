@@ -29,17 +29,24 @@ describe('semantic card art', () => {
     expect(art.style).toMatchObject({ '--art-x': '60%', '--art-y': '0%' });
   });
 
-  it('uses unique AI artwork for every reservoir card', () => {
+  it('uses dedicated generated artwork for every card from 051 through 062', () => {
+    const codes=['IV','AR','NE'].flatMap(prefix=>Array.from({length:12},(_,index)=>`${prefix}-${String(index+51).padStart(3,'0')}`));
+    const artwork=codes.map(code=>cardArt('New card',code));
+    expect(artwork.every(art=>art.className.includes('new-card-art'))).toBe(true);
+    expect(new Set(artwork.map(art=>`${art.className}:${JSON.stringify(art.style)}`)).size).toBe(36);
+  });
+
+  it('keeps unique positions for every reservoir card', () => {
     const positions = ['IV-051','IV-052','IV-053','AR-051','AR-052','AR-053','NE-051','NE-052','NE-053']
-      .map(code => JSON.stringify(cardArt('Reservoir', code).style));
+      .map(code => `${cardArt('Reservoir', code).className}:${JSON.stringify(cardArt('Reservoir', code).style)}`);
     expect(new Set(positions).size).toBe(9);
-    expect(cardArt('Kỹ Sư Tích Năng', 'IV-051').className).toBe('reservoir-art');
+    expect(cardArt('Kỹ Sư Tích Năng', 'IV-051').className).toContain('new-card-art-ironvale');
   });
 
   it('uses twelve reviewed artworks for the first Ironvale set', () => {
     const artwork = Array.from({ length: 12 }, (_, index) => cardArt('Ironvale', `IV-${String(index + 1).padStart(3, '0')}`));
     expect(artwork.every(art => art.className === 'ironvale-core-v2-art')).toBe(true);
-    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+    expect(new Set(artwork.map(art => `${art.className}:${JSON.stringify(art.style)}`)).size).toBe(12);
   });
 
   it('uses twelve reviewed artworks for the first Arcanum set', () => {
@@ -64,9 +71,9 @@ describe('semantic card art', () => {
   });
 
   it.each([
-    ['Dây Chuyền Đoạt Mệnh','NE-059','0%','20%'],
-    ['Chợ Đêm Giữa Các Cõi','NE-061','80%','0%'],
-  ])('uses a hand-reviewed subject for %s',(name,code,x,y)=>{
+    ['Dây Chuyền Đoạt Mệnh','NE-059','0%','100%'],
+    ['Chợ Đêm Giữa Các Cõi','NE-061','66.6666%','100%'],
+  ])('uses a hand-reviewed generated subject for %s',(name,code,x,y)=>{
     expect(cardArt(name,code).style).toMatchObject({'--art-x':x,'--art-y':y});
   });
 
@@ -79,8 +86,8 @@ describe('semantic card art', () => {
 
   it('uses twelve distinct artworks for the low-cost dawn set', () => {
     const artwork = ['IV','AR','NE'].flatMap(prefix => [54,55,56,57].map(number => cardArt('Dawn', `${prefix}-0${number}`)));
-    expect(artwork.every(art => art.className === 'dawn-art')).toBe(true);
-    expect(new Set(artwork.map(art => JSON.stringify(art.style))).size).toBe(12);
+    expect(artwork.every(art => art.className.includes('new-card-art'))).toBe(true);
+    expect(new Set(artwork.map(art => `${art.className}:${JSON.stringify(art.style)}`)).size).toBe(12);
   });
 
   it.each([
