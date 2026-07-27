@@ -116,9 +116,18 @@ const anomalyTiles:Record<string,number>={
   // key guardian, lethal relic, ancient beast, inter-world merchant, dragon.
   'NE-058':7,'NE-059':6,'NE-060':35,'NE-061':4,'NE-062':19,
 };
+const fateTriadTiles:Record<string,number>={
+  'IV-063':0,'IV-064':1,'AR-063':2,'AR-064':3,'NE-063':4,'NE-064':5,
+  'NE-065':6,'NE-066':7,'NE-067':8,
+};
 
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
+  const fateTriadTile=fateTriadTiles[catalogCode];
+  if(fateTriadTile!==undefined)return{
+    className:'fate-triad-art',
+    style:{'--art-x':`${fateTriadTile%3*50}%`,'--art-y':`${Math.floor(fateTriadTile/3)*50}%`} as CSSProperties,
+  };
   const newCardMatch=catalogCode.match(/^(IV|AR|NE)-0(5[1-9]|6[0-2])$/);
   if(newCardMatch){
     const number=Number(newCardMatch[2]),tile=number-51;

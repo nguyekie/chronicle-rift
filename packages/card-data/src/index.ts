@@ -66,7 +66,18 @@ const anomalyCards:CardSeed[]=[
  {code:'NE-061',name:'Chợ Đêm Giữa Các Cõi',description:'Địa hình: rút 2 lá và nhận 2 Năng lượng.',type:'TERRAIN',faction:'NEUTRAL',rarity:'LEGENDARY',cost:5,attack:null,health:null,keywords:[],collectible:true},
  {code:'NE-062',name:'Long Thần Không Tên',description:'Triệu hồi: gây 7 sát thương lên đơn vị yếu nhất của địch và rút 1 lá. Khiên chắn · Xung kích.',type:'UNIT',faction:'NEUTRAL',rarity:'MYTHIC',cost:9,attack:17,health:22,keywords:['Shield','Rush'],collectible:true},
 ].map(card=>cardSchema.parse(card));
-const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards,...anomalyCards];
+const fateAndTriadCards:CardSeed[]=[
+ {code:'IV-063',name:'Kẻ Tung Đồng Hỏa Mệnh',description:'Vận may: tung đồng xu khi triệu hồi. Mặt Huy Hoàng nhận +5 Công/+5 Máu và Khiên chắn; mặt Tro Tàn khiến thủ lĩnh mất 5 Máu.',type:'UNIT',faction:'IRONVALE',rarity:'UNCOMMON',cost:2,attack:3,health:3,keywords:[],collectible:true},
+ {code:'IV-064',name:'Pháo Đài Xúc Xắc',description:'Vận may: khi triệu hồi, gieo xúc xắc chiến tranh và gây từ 2 đến 12 sát thương lên một kẻ địch ngẫu nhiên.',type:'UNIT',faction:'IRONVALE',rarity:'EPIC',cost:4,attack:4,health:7,keywords:['Taunt'],collectible:true},
+ {code:'AR-063',name:'Nhà Tiên Tri Bánh Xe Tím',description:'Tiên kiến. Vận may: khi triệu hồi, bánh xe chọn một trong ba phúc lành: bổ sung 2 lá, thêm 3 Năng lượng, hoặc nhận +4 Công/+4 Máu.',type:'UNIT',faction:'ARCANUM',rarity:'RARE',cost:4,attack:4,health:6,keywords:['Foresee'],collectible:true},
+ {code:'AR-064',name:'Cổng Ba Kết Quả',description:'Vận may: khi triệu hồi, mở ngẫu nhiên Cổng Sấm gây 8 sát thương toàn bàn địch, Cổng Kho Báu bổ sung ba lá và ba Năng lượng, hoặc Cổng Sinh Mệnh hồi 15 Máu.',type:'UNIT',faction:'ARCANUM',rarity:'LEGENDARY',cost:6,attack:6,health:10,keywords:['Ward'],collectible:true},
+ {code:'NE-063',name:'Hộp Nghịch Vận Pandora',description:'Vận may: khi triệu hồi, 50% nhận đại thưởng gồm bốn lá, bốn Năng lượng và hồi 12 Máu; 50% phản phệ khiến thủ lĩnh mất 8 Máu.',type:'UNIT',faction:'NEUTRAL',rarity:'MYTHIC',cost:5,attack:5,health:9,keywords:['Shield'],collectible:true},
+ {code:'NE-064',name:'Kẻ Gieo Xúc Xắc Thiên Hà',description:'Vận may: khi triệu hồi, gieo hai xúc xắc và nhận thêm Công cùng Máu bằng kết quả tương ứng.',type:'UNIT',faction:'NEUTRAL',rarity:'CELESTIAL',cost:7,attack:7,health:7,keywords:['Ward'],collectible:true},
+ {code:'NE-065',name:'Nhãn Ấn Khải Huyền',description:'Tam Ấn Khải Hoàn: Mắt. Khi Nhãn Ấn, Thủ Ấn và Tâm Ấn cùng hiện diện trên sân của bạn, bạn thắng trận ngay lập tức.',type:'UNIT',faction:'NEUTRAL',rarity:'ANCIENT',cost:5,attack:6,health:9,keywords:['Ward'],collectible:true},
+ {code:'NE-066',name:'Thủ Ấn Khải Huyền',description:'Tam Ấn Khải Hoàn: Tay. Khi Nhãn Ấn, Thủ Ấn và Tâm Ấn cùng hiện diện trên sân của bạn, bạn thắng trận ngay lập tức.',type:'UNIT',faction:'NEUTRAL',rarity:'MYTHIC',cost:5,attack:8,health:7,keywords:['Shield'],collectible:true},
+ {code:'NE-067',name:'Tâm Ấn Khải Huyền',description:'Tam Ấn Khải Hoàn: Tim. Khi Nhãn Ấn, Thủ Ấn và Tâm Ấn cùng hiện diện trên sân của bạn, bạn thắng trận ngay lập tức.',type:'UNIT',faction:'NEUTRAL',rarity:'CELESTIAL',cost:5,attack:7,health:8,keywords:['Taunt'],collectible:true},
+].map(card=>cardSchema.parse(card));
+const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards,...anomalyCards,...fateAndTriadCards];
 const cardCorrections:Record<string,Partial<CardSeed>>={
  'IV-011':{type:'SPELL',description:'Thi triển: toàn bộ đồng minh nhận +2 Công trong lượt này.'},
  'IV-012':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +4 Máu và Khiên chắn.'},

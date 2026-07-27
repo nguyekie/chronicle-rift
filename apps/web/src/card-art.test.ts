@@ -3,6 +3,12 @@ import { cardArt } from './card-art';
 import { cards } from '@chronicle/card-data';
 
 describe('semantic card art', () => {
+  it('maps every fate and Three-Seal card to a unique generated atlas cell',()=>{
+    const codes=['IV-063','IV-064','AR-063','AR-064','NE-063','NE-064','NE-065','NE-066','NE-067'];
+    const art=codes.map(code=>cardArt(code,code));
+    expect(art.every(item=>item.className==='fate-triad-art')).toBe(true);
+    expect(new Set(art.map(item=>JSON.stringify(item.style))).size).toBe(9);
+  });
   it('keeps artwork stable when a card name changes', () => {
     expect(cardArt('Nhà Luyện Kim Ánh Trăng', 'AR-036')).toEqual(cardArt('Tên đã đổi', 'AR-036'));
   });

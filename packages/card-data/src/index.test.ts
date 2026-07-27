@@ -4,15 +4,15 @@ import {cardSchema,cards} from './index.js';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase();
 
 describe('card catalog',()=>{
-  it('contains 174 valid unique cards',()=>{
-    expect(cards).toHaveLength(174);
-    expect(new Set(cards.map(card=>card.code)).size).toBe(174);
+  it('contains 183 valid unique cards',()=>{
+    expect(cards).toHaveLength(183);
+    expect(new Set(cards.map(card=>card.code)).size).toBe(183);
     cards.forEach(card=>expect(cardSchema.safeParse(card).success).toBe(true));
   });
   it('has expanded faction counts',()=>{
-    expect(cards.filter(card=>card.faction==='IRONVALE')).toHaveLength(62);
-    expect(cards.filter(card=>card.faction==='ARCANUM')).toHaveLength(62);
-    expect(cards.filter(card=>card.faction==='NEUTRAL')).toHaveLength(50);
+    expect(cards.filter(card=>card.faction==='IRONVALE')).toHaveLength(64);
+    expect(cards.filter(card=>card.faction==='ARCANUM')).toHaveLength(64);
+    expect(cards.filter(card=>card.faction==='NEUTRAL')).toHaveLength(55);
   });
   it('contains all nine rarity levels',()=>expect(new Set(cards.map(card=>card.rarity)).size).toBe(9));
   it('contains the complete reservoir mechanic set',()=>expect(cards.filter(card=>{const number=Number(card.code.slice(-3));return number>=51&&number<=53})).toHaveLength(9));
@@ -41,5 +41,13 @@ describe('card catalog',()=>{
     const limited=cards.filter(card=>card.rarity==='LIMITED');
     expect(limited).toHaveLength(11);
     expect(new Set(limited.map(card=>card.description)).size).toBe(11);
+  });
+  it('adds six distinct fate cards and the complete three-seal victory set',()=>{
+    const fate=cards.filter(card=>Number(card.code.slice(-3))>=63&&Number(card.code.slice(-3))<=64);
+    expect(fate).toHaveLength(6);
+    expect(new Set(fate.map(card=>card.rarity)).size).toBe(6);
+    const triad=cards.filter(card=>['NE-065','NE-066','NE-067'].includes(card.code));
+    expect(triad).toHaveLength(3);
+    expect(triad.every(card=>normalize(card.description).includes('tam an khai hoan'))).toBe(true);
   });
 });
