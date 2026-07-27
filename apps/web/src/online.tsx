@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
+import { socketBaseUrl } from './runtime-config';
 import { api } from './api';
 import type { DeckDto } from '@chronicle/shared-types';
 import './online.css';
@@ -24,7 +25,7 @@ export function PvpLobby() {
   const [opponentOffline,setOpponentOffline]=useState(false);
   useEffect(() => {
     api<DeckDto[]>('/decks').then(items => { setDecks(items); setDeckId(items[0]?.id ?? ''); });
-    const client = io(import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:3100', { auth: { token: localStorage.getItem('accessToken') } });
+    const client = io(socketBaseUrl(import.meta.env.VITE_SOCKET_URL), { auth: { token: localStorage.getItem('accessToken') } });
     client.on('matchmaking:status', data => {setQueueing(Boolean(data.queued));setStatus(data.queued?'Đang tìm người chơi đang trực tuyến…':'Đã hủy tìm trận')});
     client.on('room:created', data=>{setRoomCode(data.code);setStatus('Phòng đã tạo · gửi mã cho bạn bè')});
     client.on('room:cancelled',()=>{setRoomCode('');setStatus('Đã đóng phòng')});
