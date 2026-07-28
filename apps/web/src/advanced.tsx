@@ -14,6 +14,7 @@ import './battle-action-feed.css';
 import './battle-cinematic-fix.css';
 import './limited-vfx-distinct.css';
 import './limited-vfx-impact.css';
+import './limited-cinematic-pro.css';
 import {useFateOverlay} from './fate-overlay';
 import {useTrinityVictory} from './trinity-victory';
 

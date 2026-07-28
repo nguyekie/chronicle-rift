@@ -4,6 +4,7 @@ import {cardArt} from './card-art';
 import {resolveViewerId} from './pvp-state';
 import {unseenBattleEvents} from './pvp-event-window';
 import './online-battle-campaign.css';
+import './limited-cinematic-pro.css';
 import {useFateOverlay} from './fate-overlay';
 import {useTrinityVictory} from './trinity-victory';
 
