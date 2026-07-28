@@ -44,7 +44,7 @@ export function chooseBattleAiAction(state: GameState, difficulty = 1, style:AiS
     if (trade && trade.score > 0) return { type: 'ATTACK', playerId: ai.id, attackerId: trade.attacker.instanceId, targetId: trade.target.instanceId };
   }
 
-  const playable = ai.hand.filter(card => card.cost <= ai.energy && (card.type !== 'UNIT' || rows.some(row => ai.board[row].length < 3)) && (card.type==='UNIT'||enemies.length>0));
+  const playable = ai.hand.filter(card => card.cost <= ai.energy && (card.type !== 'UNIT' || rows.some(row => ai.board[row].length < 3)) && (card.type==='UNIT'||enemies.length>0||!needsTarget(card)));
   const removal = playable.filter(card => card.type === 'SPELL' && enemies.length)
     .map(card => {
       const text=normalizedText(card);
