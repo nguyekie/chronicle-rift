@@ -27,11 +27,17 @@ function playTrinitySound(){
 }
 
 export function useTrinityVictory(events:GameEvent[],revision:number|string){
- const seen=useRef(events.length),root=useRef<Root|null>(null),timer=useRef<number|undefined>(undefined);
+ const seen=useRef(0),played=useRef(''),root=useRef<Root|null>(null),timer=useRef<number|undefined>(undefined);
  useEffect(()=>{const node=document.createElement('div');node.className='trinity-victory-host';document.body.appendChild(node);root.current=createRoot(node);return()=>{if(timer.current)clearTimeout(timer.current);document.body.classList.remove('trinity-active');root.current?.unmount();node.remove()}},[]);
  useEffect(()=>{
+  // A winning summon and ENDED state can arrive in the same render (especially
+  // over PvP snapshots). Start at zero so a newly-mounted battle still sees the
+  // victory event that is already present in that snapshot.
+  if(events.length<seen.current)seen.current=0;
   const fresh=events.slice(seen.current);seen.current=events.length;
   const event=[...fresh].reverse().find(item=>item.type==='TRINITY_VICTORY');if(!event)return;
+  const signature=`${revision}:${event.playerId}:${event.sourceId??''}:${event.message}`;
+  if(played.current===signature)return;played.current=signature;
   if(timer.current)clearTimeout(timer.current);document.body.classList.add('trinity-active');playTrinitySound();root.current?.render(<TrinityScene event={event}/>);
   timer.current=window.setTimeout(()=>{root.current?.render(null);document.body.classList.remove('trinity-active')},6500);
  },[events,revision]);
