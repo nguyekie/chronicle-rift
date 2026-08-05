@@ -77,7 +77,12 @@ const fateAndTriadCards:CardSeed[]=[
  {code:'NE-066',name:'Thủ Ấn Khải Huyền',description:'Tam Ấn Khải Hoàn: Tay. Khi Nhãn Ấn, Thủ Ấn và Tâm Ấn cùng hiện diện trên sân của bạn, bạn thắng trận ngay lập tức.',type:'UNIT',faction:'NEUTRAL',rarity:'MYTHIC',cost:5,attack:8,health:7,keywords:['Shield'],collectible:true},
  {code:'NE-067',name:'Tâm Ấn Khải Huyền',description:'Tam Ấn Khải Hoàn: Tim. Khi Nhãn Ấn, Thủ Ấn và Tâm Ấn cùng hiện diện trên sân của bạn, bạn thắng trận ngay lập tức.',type:'UNIT',faction:'NEUTRAL',rarity:'CELESTIAL',cost:5,attack:7,health:8,keywords:['Taunt'],collectible:true},
 ].map(card=>cardSchema.parse(card));
-const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards,...anomalyCards,...fateAndTriadCards];
+const livingLegendCards:CardSeed[]=[
+ {code:'IV-068',name:'Long Kỵ Sĩ Thiên Uyên',description:'Khiên chắn · Xung kích. Triệu hồi: gây 7 sát thương lên đơn vị yếu nhất của địch. Hạ gục: hoàn lại 2 Năng lượng và nhận +2 Công/+2 Máu.',type:'UNIT',faction:'IRONVALE',rarity:'MYTHIC',cost:9,attack:18,health:22,keywords:['Shield','Rush'],collectible:true},
+ {code:'AR-068',name:'Nữ Hoàng Tinh Vân Seraphine',description:'Hộ vệ · Tiên kiến · Cộng hưởng. Triệu hồi: rút 2 lá và nhận 4 Năng lượng. Cuối lượt: nếu đã dùng phép, nhận +3 Công/+3 Máu.',type:'UNIT',faction:'ARCANUM',rarity:'CELESTIAL',cost:10,attack:15,health:20,keywords:['Ward','Foresee','Resonance'],collectible:true},
+ {code:'NE-068',name:'Cự Thần Lò Sao',description:'Khiêu khích · Khiên chắn. Triệu hồi: toàn bộ đồng minh nhận +3 Công/+5 Máu và Khiên chắn; thủ lĩnh hồi 5 Máu.',type:'UNIT',faction:'NEUTRAL',rarity:'ANCIENT',cost:10,attack:20,health:26,keywords:['Taunt','Shield'],collectible:true},
+].map(card=>cardSchema.parse(card));
+const rawCards:CardSeed[]=[...coreCards,...expansionCards,...frontierCards,...ascendantCards,...reservoirCards,...dawnCards,...anomalyCards,...fateAndTriadCards,...livingLegendCards];
 const cardCorrections:Record<string,Partial<CardSeed>>={
  'IV-011':{type:'SPELL',description:'Thi triển: toàn bộ đồng minh nhận +2 Công trong lượt này.'},
  'IV-012':{type:'TERRAIN',description:'Địa hình: toàn bộ đồng minh nhận +4 Máu và Khiên chắn.'},

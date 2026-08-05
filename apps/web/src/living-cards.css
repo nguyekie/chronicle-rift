@@ -1,0 +1,33 @@
+/* Living Legends: layered artwork and cinematic motion without holographic stripes. */
+.living-card-art{position:relative;overflow:hidden;isolation:isolate;background-size:cover!important;background-position:center!important;transform:translateZ(0)}
+.living-iv-068{background-image:url('/card-art/living-iv-068-dragon-knight.png')!important}
+.living-ar-068{background-image:url('/card-art/living-ar-068-seraphine.png')!important}
+.living-ne-068{background-image:url('/card-art/living-ne-068-star-forge-titan.png')!important}
+.living-card-art::before,.living-card-art::after{content:"";position:absolute;inset:-8%;pointer-events:none;z-index:0}
+.living-card-art::before{background:inherit;background-size:cover;background-position:center;opacity:.32;mix-blend-mode:screen;filter:saturate(1.25) contrast(1.08);animation:living-camera 8s ease-in-out infinite alternate}
+.living-card-art::after{inset:0;opacity:.78;mix-blend-mode:screen}
+.living-iv-068::after{background:radial-gradient(circle at 70% 35%,#66f6ff 0 2%,transparent 18%),conic-gradient(from 180deg at 66% 38%,transparent,#6a5cff55,transparent 35%);animation:abyss-breath 3.8s ease-in-out infinite}
+.living-ar-068::after{background:radial-gradient(circle at 51% 42%,#fff 0 1%,#7deaff66 4%,transparent 19%),conic-gradient(from 0deg at 50% 43%,transparent,#bc78ff55,transparent 28%);animation:stellar-orbit 7s linear infinite}
+.living-ne-068::after{background:radial-gradient(circle at 51% 55%,#fff5ae 0 2%,#ff8b1999 7%,transparent 24%),linear-gradient(110deg,transparent 35%,#ffb33d55 49%,transparent 62%);animation:forge-heart 2.1s ease-in-out infinite}
+.card:hover .living-card-art::before,.battle-card:hover .living-card-art::before{opacity:.48;animation-duration:3.6s}
+@keyframes living-camera{from{transform:scale(1.01) translate3d(-1%,1%,0)}to{transform:scale(1.12) translate3d(2%,-2%,0)}}
+@keyframes abyss-breath{50%{opacity:1;filter:hue-rotate(22deg) brightness(1.35);transform:scale(1.1) rotate(3deg)}}
+@keyframes stellar-orbit{to{transform:rotate(360deg) scale(1.12)}}
+@keyframes forge-heart{50%{opacity:1;filter:brightness(1.65);transform:scale(1.08)}}
+
+.limited-abyss-dragon,.limited-cosmic-empress,.limited-star-forge{background:#020712;overflow:hidden}
+.limited-abyss-dragon::before,.limited-cosmic-empress::before,.limited-star-forge::before{content:"";position:absolute;inset:-9%;background-position:center;background-size:cover;filter:saturate(1.25) contrast(1.05);animation:cinematic-camera 3.4s cubic-bezier(.2,.7,.2,1) both}
+.limited-abyss-dragon::before{background-image:linear-gradient(90deg,#02061433,#2fe3ff22),url('/card-art/living-iv-068-dragon-knight.png')}
+.limited-cosmic-empress::before{background-image:linear-gradient(90deg,#06021a33,#cf78ff22),url('/card-art/living-ar-068-seraphine.png')}
+.limited-star-forge::before{background-image:linear-gradient(90deg,#16060033,#ff9d2122),url('/card-art/living-ne-068-star-forge-titan.png')}
+.limited-abyss-dragon::after,.limited-cosmic-empress::after,.limited-star-forge::after{content:"";position:absolute;inset:-35%;mix-blend-mode:screen;animation:cinematic-energy 2.7s ease-out both}
+.limited-abyss-dragon::after{background:conic-gradient(transparent,#42e7ff66,transparent 28%)}
+.limited-cosmic-empress::after{background:conic-gradient(#7d5cff00,#eab3ff88,#5adfff33,#7d5cff00)}
+.limited-star-forge::after{background:radial-gradient(circle,#fff7b888 0 3%,#ff721955 12%,transparent 35%)}
+.limited-abyss-dragon .limited-card-sigil,.limited-cosmic-empress .limited-card-sigil,.limited-star-forge .limited-card-sigil{display:none}
+.limited-abyss-dragon>div>small,.limited-cosmic-empress>div>small,.limited-star-forge>div>small{font-size:0}
+.limited-abyss-dragon>div>small::after,.limited-cosmic-empress>div>small::after,.limited-star-forge>div>small::after{content:'HUYỀN THOẠI SỐNG THỨC TỈNH';font-size:.72rem;letter-spacing:.3em;color:#8beaff}
+@keyframes cinematic-camera{0%{opacity:0;transform:scale(1.32) translateX(5%);filter:blur(12px)}25%{opacity:1;filter:blur(0)}100%{transform:scale(1.03) translateX(-1%)}}
+@keyframes cinematic-energy{0%{opacity:0;transform:scale(.35) rotate(-35deg)}45%{opacity:1}100%{opacity:.15;transform:scale(1.25) rotate(70deg)}}
+@media(max-width:700px){.living-card-art::before{animation-duration:11s}.limited-abyss-dragon::before,.limited-cosmic-empress::before,.limited-star-forge::before{background-position:center top}}
+@media(prefers-reduced-motion:reduce){.living-card-art::before,.living-card-art::after,.limited-abyss-dragon::before,.limited-cosmic-empress::before,.limited-star-forge::before,.limited-abyss-dragon::after,.limited-cosmic-empress::after,.limited-star-forge::after{animation:none!important}}

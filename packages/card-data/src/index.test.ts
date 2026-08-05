@@ -4,17 +4,23 @@ import {cardSchema,cards} from './index.js';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase();
 
 describe('card catalog',()=>{
-  it('contains 183 valid unique cards',()=>{
-    expect(cards).toHaveLength(183);
-    expect(new Set(cards.map(card=>card.code)).size).toBe(183);
+  it('contains 186 valid unique cards',()=>{
+    expect(cards).toHaveLength(186);
+    expect(new Set(cards.map(card=>card.code)).size).toBe(186);
     cards.forEach(card=>expect(cardSchema.safeParse(card).success).toBe(true));
   });
   it('has expanded faction counts',()=>{
-    expect(cards.filter(card=>card.faction==='IRONVALE')).toHaveLength(64);
-    expect(cards.filter(card=>card.faction==='ARCANUM')).toHaveLength(64);
-    expect(cards.filter(card=>card.faction==='NEUTRAL')).toHaveLength(55);
+    expect(cards.filter(card=>card.faction==='IRONVALE')).toHaveLength(65);
+    expect(cards.filter(card=>card.faction==='ARCANUM')).toHaveLength(65);
+    expect(cards.filter(card=>card.faction==='NEUTRAL')).toHaveLength(56);
   });
   it('contains all nine rarity levels',()=>expect(new Set(cards.map(card=>card.rarity)).size).toBe(9));
+  it('adds three distinct Living Legend cards',()=>{
+    const living=cards.filter(card=>card.code.endsWith('-068'));
+    expect(living).toHaveLength(3);
+    expect(new Set(living.map(card=>card.description)).size).toBe(3);
+    expect(living.every(card=>card.type==='UNIT'&&card.cost>=9)).toBe(true);
+  });
   it('contains the complete reservoir mechanic set',()=>expect(cards.filter(card=>{const number=Number(card.code.slice(-3));return number>=51&&number<=53})).toHaveLength(9));
   it('keeps the twelve-card low-cost dawn set',()=>{
     const dawn=cards.filter(card=>{const number=Number(card.code.slice(-3));return number>=54&&number<=57});

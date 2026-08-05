@@ -11,11 +11,14 @@ import {useTrinityVictory} from './trinity-victory';
 const rows=['FRONT','MIDDLE','BACK'] as const;
 const rowName:Record<string,string>={FRONT:'Hàng trước',MIDDLE:'Hàng giữa',BACK:'Hàng sau'};
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').toLowerCase();
-const limitedByName:Record<string,{slug:string;label:string}>={
+const limitedByName:Record<string,{slug:string;label:string;banner?:string}>={
  'thanh kiem valen':{slug:'valen-blade',label:'THÁNH KIẾM PHÁ TRẬN'},'hao luy cuoi cung':{slug:'last-bastion',label:'HÀO LŨY BẤT DIỆT'},'ky si nhat thuc':{slug:'eclipse-rider',label:'KỴ SĨ NHẬT THỰC'},
  'vuong mien hu khong':{slug:'void-crown',label:'VƯƠNG MIỆN HƯ KHÔNG'},'mua sao bang':{slug:'starfall',label:'MƯA SAO BĂNG'},'elira vuot thoi gian':{slug:'time-break',label:'ELIRA BẺ GÃY THỜI GIAN'},
  'nguoi giu can bang':{slug:'balance',label:'CÂN BẰNG TUYỆT ĐỐI'},'manh vo khoi nguyen':{slug:'origin-shard',label:'MẢNH VỠ KHỞI NGUYÊN'},'riftborn dau tien':{slug:'first-riftborn',label:'RIFTBORN THỨC TỈNH'},
  'hoang de tan nhat':{slug:'last-emperor',label:'HOÀNG ĐẾ PHONG ẤN TẬN NHẬT'},'nu than nghich ly lyra':{slug:'paradox-goddess',label:'NỮ THẦN ĐẢO NGHỊCH THỰC TẠI'},
+ 'long ky si thien uyen':{slug:'abyss-dragon',label:'LONG KỴ SĨ THIÊN UYÊN',banner:'HUYỀN THOẠI SỐNG THỨC TỈNH'},
+ 'nu hoang tinh van seraphine':{slug:'cosmic-empress',label:'NỮ HOÀNG TINH VÂN SERAPHINE',banner:'HUYỀN THOẠI SỐNG THỨC TỈNH'},
+ 'cu than lo sao':{slug:'star-forge',label:'CỰ THẦN LÒ SAO',banner:'HUYỀN THOẠI SỐNG THỨC TỈNH'},
 };
 const eventText=(text:string)=>text.replace('summoned','đã được triệu hồi').replace('damage','sát thương').replace('Unit died','Đơn vị đã bị tiêu diệt').replace('Shield absorbed damage','Khiên đã chặn sát thương').replace('Turn','Lượt');
 

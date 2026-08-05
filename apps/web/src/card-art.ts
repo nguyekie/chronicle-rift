@@ -123,6 +123,10 @@ const fateTriadTiles:Record<string,number>={
 
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
+  const livingArt:Record<string,string>={
+    'IV-068':'living-iv-068','AR-068':'living-ar-068','NE-068':'living-ne-068',
+  };
+  if(livingArt[catalogCode])return{className:`living-card-art ${livingArt[catalogCode]}`,style:{} as CSSProperties};
   const fateTriadTile=fateTriadTiles[catalogCode];
   if(fateTriadTile!==undefined)return{
     className:'fate-triad-art',
