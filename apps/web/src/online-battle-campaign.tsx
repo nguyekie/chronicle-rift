@@ -7,6 +7,7 @@ import './online-battle-campaign.css';
 import './limited-cinematic-pro.css';
 import {useFateOverlay} from './fate-overlay';
 import {useTrinityVictory} from './trinity-victory';
+import {playLivingLegend} from './living-legend-trigger';
 
 const rows=['FRONT','MIDDLE','BACK'] as const;
 const rowName:Record<string,string>={FRONT:'Hàng trước',MIDDLE:'Hàng giữa',BACK:'Hàng sau'};
@@ -38,6 +39,7 @@ export function OnlineCampaignBattle({payload,matchId,mode,socket,status}:{paylo
  const foreseen=!limited&&state.pendingForesee?.playerId===viewerId?me.deck[0]:undefined;
  useFateOverlay(state.events,payload.version);
  useTrinityVictory(state.events,payload.version);
+ useEffect(()=>{if(limited)playLivingLegend(limited.slug,limited.label)},[limited?.key]);
  let eventTurn=0;const history=state.events.map((event:any)=>{const parsed=event.turn??Number(event.message?.match(/(?:Turn|lượt)\s+(\d+)/i)?.[1]??0);if(parsed)eventTurn=parsed;return{...event,displayTurn:(event.turn??eventTurn)||state.turn}});
  return <div className={`battle online-campaign-battle ${myTurn?'':'ai-turn'}`}>
   {inspected&&(()=>{const picture=cardArt(inspected.name,inspected.id??''),skills=(inspected.keywords??[]).join(' · ')||'Không có từ khóa';return <aside className="card-inspector"><span className={`inspector-art ${picture.className}`} style={picture.style}/><span className="inspector-copy"><small>{inspected.type==='UNIT'?'ĐƠN VỊ':'MA PHÁP'} · {skills}</small><b>{inspected.name}</b><em>{inspected.description||'Không có mô tả kỹ năng.'}</em><span><i>✦ {inspected.cost}</i>{inspected.type==='UNIT'&&<><i>⚔ {inspected.currentAttack}</i><i>♥ {inspected.currentHealth}</i></>}</span></span></aside>})()}
