@@ -4,7 +4,7 @@ export type CampaignBoost={attack:number;health:number;spellDamage:number;label:
 
 export function campaignBoost(chapter:number,stage:number,boss:boolean):CampaignBoost{
  if(chapter<3)return{attack:0,health:0,spellDamage:0,label:'Không cường hóa chỉ số'};
- const tier=1+Math.floor(Math.max(0,stage-1)/4);
+ const tier=1+Math.floor(Math.max(0,stage-1)/4)+Math.max(0,chapter-3)*2;
  const attack=tier+(boss?2:0),health=tier+(boss?3:0),spellDamage=tier+(boss?2:0);
  return{attack,health,spellDamage,label:`Cường hóa công khai: đơn vị +${attack} Công/+${health} Máu · phép +${spellDamage} sát thương`};
 }
