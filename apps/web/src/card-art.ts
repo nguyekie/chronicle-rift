@@ -123,10 +123,17 @@ const fateTriadTiles:Record<string,number>={
 
 export function cardArt(name: string, code: string) {
   const catalogCode = code.match(/^(IV|AR|NE)-\d{3}/)?.[0] ?? code;
-  const livingArt:Record<string,string>={
-    'IV-068':'living-iv-068','AR-068':'living-ar-068','NE-068':'living-ne-068',
+  const livingArt:Record<string,{className:string;url:string}>={
+    'IV-068':{className:'living-iv-068',url:'/card-art/living-iv-068-dragon-knight.png'},
+    'AR-068':{className:'living-ar-068',url:'/card-art/living-ar-068-seraphine.png'},
+    'NE-068':{className:'living-ne-068',url:'/card-art/living-ne-068-star-forge-titan.png'},
   };
-  if(livingArt[catalogCode])return{className:`living-card-art ${livingArt[catalogCode]}`,style:{} as CSSProperties};
+  const livingByName:Record<string,keyof typeof livingArt>={
+    'long ky si thien uyen':'IV-068','nu hoang tinh van seraphine':'AR-068','cu than lo sao':'NE-068',
+  };
+  const livingNameCode=livingByName[normalize(name)];
+  const living=livingArt[catalogCode]??(livingNameCode?livingArt[livingNameCode]:undefined);
+  if(living)return{className:`living-card-art ${living.className}`,style:{backgroundImage:`url('${living.url}')`} as CSSProperties};
   const fateTriadTile=fateTriadTiles[catalogCode];
   if(fateTriadTile!==undefined)return{
     className:'fate-triad-art',

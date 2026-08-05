@@ -41,6 +41,15 @@ describe('semantic card art', () => {
     expect(artwork.every(art=>art.className.includes('new-card-art'))).toBe(true);
     expect(new Set(artwork.map(art=>`${art.className}:${JSON.stringify(art.style)}`)).size).toBe(36);
   });
+  it('always uses dedicated Living Legend artwork by code or production name',()=>{
+    const byCode=cardArt('Tên bất kỳ','IV-068');
+    const byName=cardArt('Long Kỵ Sĩ Thiên Uyên','living_iv_068');
+    expect(byCode.className).toContain('living-iv-068');
+    expect(byName).toEqual(byCode);
+    expect(String(byCode.style.backgroundImage)).toContain('living-iv-068-dragon-knight.png');
+    expect(cardArt('Nữ Hoàng Tinh Vân Seraphine','db-id').className).toContain('living-ar-068');
+    expect(cardArt('Cự Thần Lò Sao','db-id').className).toContain('living-ne-068');
+  });
 
   it('keeps unique positions for every reservoir card', () => {
     const positions = ['IV-051','IV-052','IV-053','AR-051','AR-052','AR-053','NE-051','NE-052','NE-053']
