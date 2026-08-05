@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import * as THREE from 'three';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './living-legend-3d.css';
 
 export type LivingLegendSlug='abyss-dragon'|'cosmic-empress'|'star-forge';
@@ -12,6 +13,11 @@ const artBySlug:Record<LivingLegendSlug,string>={
 };
 const tintBySlug:Record<LivingLegendSlug,THREE.ColorRepresentation>={
  'abyss-dragon':0x55e7ff,'cosmic-empress':0xc786ff,'star-forge':0xff8d32,
+};
+const modelBySlug:Record<LivingLegendSlug,string>={
+ 'abyss-dragon':'/models/living-legends/abyss-dragon.glb',
+ 'cosmic-empress':'/models/living-legends/cosmic-empress.glb',
+ 'star-forge':'/models/living-legends/star-forge.glb',
 };
 
 const emitLivingLegend=(slug:string,label:string)=>{
@@ -63,18 +69,39 @@ async function createPortrait(scene:THREE.Scene,slug:LivingLegendSlug){
  return group;
 }
 
+async function createAnimatedModel(scene:THREE.Scene,slug:LivingLegendSlug){
+ const gltf=await new GLTFLoader().loadAsync(modelBySlug[slug]);
+ const actor=gltf.scene,bounds=new THREE.Box3().setFromObject(gltf.scene),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+ const scale=5.4/Math.max(size.y,.001);actor.scale.setScalar(scale);actor.position.set(-center.x*scale,-center.y*scale+.15,-center.z*scale);
+ const root=new THREE.Group();root.add(actor);scene.add(root);
+ actor.traverse(object=>{if(object instanceof THREE.Mesh){object.castShadow=true;object.receiveShadow=true}});
+ const mixer=new THREE.AnimationMixer(actor),clips=gltf.animations;
+ const find=(names:string[])=>clips.find(clip=>names.some(name=>clip.name.toLowerCase().includes(name)));
+ const intro=find(['summon','spawn','intro'])??clips[0],idle=find(['idle','breath']),attack=find(['ultimate','attack','cast']);
+ const play=(clip?:THREE.AnimationClip,loop:typeof THREE.LoopOnce|typeof THREE.LoopRepeat=THREE.LoopOnce)=>{if(!clip)return;const action=mixer.clipAction(clip);action.reset().setLoop(loop,loop===THREE.LoopRepeat?Infinity:1).fadeIn(.12).play();action.clampWhenFinished=loop===THREE.LoopOnce};
+ play(intro);let switched=false,attacked=false;
+ root.userData.animate=(time:number,pointer:THREE.Vector2,delta:number)=>{
+  mixer.update(delta);root.rotation.y+=(pointer.x*.22-root.rotation.y)*.045;root.rotation.x+=(-pointer.y*.05-root.rotation.x)*.04;
+  const reveal=Math.min(1,time/.75);root.scale.setScalar(.75+reveal*.25);root.position.y=Math.sin(time*1.6)*.035;
+  if(!switched&&time>1.25){switched=true;mixer.stopAllAction();play(idle,THREE.LoopRepeat)}
+  if(!attacked&&time>2.45&&attack){attacked=true;mixer.stopAllAction();play(attack)}
+ };
+ root.userData.dispose=()=>mixer.stopAllAction();return root;
+}
+
 function Scene({slug}:{slug:LivingLegendSlug}){
  const host=useRef<HTMLDivElement>(null);
  useEffect(()=>{const container=host.current;if(!container)return;let disposed=false,frame=0,actor:THREE.Group|undefined;
   const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(38,1,.1,100);camera.position.set(0,.3,7.4);
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;container.appendChild(renderer.domElement);
+  scene.add(new THREE.HemisphereLight(0xbfeaff,0x100817,2.2));const key=new THREE.DirectionalLight(0xffffff,3.4);key.position.set(3,5,5);scene.add(key);const rim=new THREE.PointLight(tintBySlug[slug],9,12);rim.position.set(-3,1,2);scene.add(rim);
   const particles=createParticles(scene,slug),pointer=new THREE.Vector2(),clock=new THREE.Clock();
-  createPortrait(scene,slug).then(value=>{if(disposed){scene.remove(value);return}actor=value});
+  createAnimatedModel(scene,slug).catch(()=>createPortrait(scene,slug)).then(value=>{if(disposed){scene.remove(value);value.userData.dispose?.();return}actor=value});
   const onPointer=(event:PointerEvent)=>pointer.set((event.clientX/innerWidth-.5)*2,-(event.clientY/innerHeight-.5)*2);
   const resize=()=>{const box=container.getBoundingClientRect();renderer.setSize(box.width,box.height,false);camera.aspect=box.width/box.height;camera.updateProjectionMatrix()};
   addEventListener('pointermove',onPointer,{passive:true});resize();
-  const loop=()=>{frame=requestAnimationFrame(loop);const time=clock.getElapsedTime();actor?.userData.animate?.(time,pointer);particles.rotation.y=time*.06;particles.position.y=((time*.18)%1.1)-.55;camera.position.x+=(pointer.x*.22-camera.position.x)*.025;camera.position.y+=(.3+pointer.y*.12-camera.position.y)*.025;camera.lookAt(0,.25,0);renderer.render(scene,camera)};loop();
-  return()=>{disposed=true;cancelAnimationFrame(frame);removeEventListener('pointermove',onPointer);renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh||object instanceof THREE.Points){object.geometry.dispose();const materials=Array.isArray(object.material)?object.material:[object.material];materials.forEach(item=>item.dispose())}});renderer.domElement.remove()}
+  let previous=0;const loop=()=>{frame=requestAnimationFrame(loop);const time=clock.getElapsedTime(),delta=Math.min(.05,time-previous);previous=time;actor?.userData.animate?.(time,pointer,delta);particles.rotation.y=time*.06;particles.position.y=((time*.18)%1.1)-.55;camera.position.x+=(pointer.x*.22-camera.position.x)*.025;camera.position.y+=(.3+pointer.y*.12-camera.position.y)*.025;camera.lookAt(0,.25,0);renderer.render(scene,camera)};loop();
+  return()=>{disposed=true;cancelAnimationFrame(frame);removeEventListener('pointermove',onPointer);actor?.userData.dispose?.();renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh||object instanceof THREE.Points){object.geometry.dispose();const materials=Array.isArray(object.material)?object.material:[object.material];materials.forEach(item=>item.dispose())}});renderer.domElement.remove()}
  },[slug]);return <div ref={host} className="living-webgl-canvas"/>;
 }
 
